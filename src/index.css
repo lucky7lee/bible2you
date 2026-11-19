@@ -367,80 +367,182 @@ html, body {
 }
 
 /* ==========================================================================
-   카메라 스캐너 (CameraScanner)
+   카메라 스캐너 (오늘 관상 운세 앱 100% 동일 CSS)
    ========================================================================== */
-.scanner-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.scanner-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.icon-nav-button {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text-main);
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  cursor: pointer;
-}
-
-.scanner-header-title {
-  font-size: 13.5px;
-  color: var(--gold-light);
-}
-
-.viewfinder-wrapper {
+.camera-stage {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
-  max-height: 440px;
-  border-radius: var(--radius-lg);
+  max-height: 62dvh;
+  border-radius: 26px;
   overflow: hidden;
-  background: #000000;
-  border: 2px solid var(--gold-border);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+  background: #070911;
+  border: 1.5px solid var(--gold-border);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
 }
 
-.scanner-video {
+.camera-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.scanner-video.mirrored,
-.scanner-overlay-canvas.mirrored {
+.camera-video.mirrored {
   transform: scaleX(-1);
 }
 
-.scanner-overlay-canvas {
+.camera-canvas {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
 }
 
-.scanner-overlay-message {
+.camera-hud-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  z-index: 10;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(9, 11, 20, 0.75);
+  border: 1px solid rgba(250, 228, 158, 0.35);
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold-light);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 10px #34d399;
+  animation: pulseDot 1.3s ease-in-out infinite;
+}
+
+.live-dot.warn {
+  background: #fbbf24;
+  box-shadow: 0 0 10px #fbbf24;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}
+
+.commentary-bubble {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(11, 14, 26, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.48);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  animation: fadeSlideUp 0.35s ease;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.commentary-bubble p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.48;
+  color: #fff8e2;
+  font-weight: 500;
+}
+
+.camera-guide-oval {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 17, 40, 0.85);
-  gap: 12px;
+  pointer-events: none;
+}
+
+/* 완벽한 둥근 원형 가이드 */
+.guide-oval-shape {
+  width: 66%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 2px dashed rgba(250, 228, 158, 0.45);
+  box-shadow: 0 0 0 9999px rgba(7, 9, 17, 0.28);
+}
+
+.scan-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.scan-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4af37, #fef08a);
+  transition: width 0.12s linear;
+}
+
+.live-metrics-bar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.metric-chip {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.metric-chip-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+}
+
+.metric-chip-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-top: 2px;
+  display: block;
 }
 
 .sacred-spinner {
@@ -456,144 +558,9 @@ html, body {
   to { transform: rotate(360deg); }
 }
 
-.scanner-loading-text {
-  font-size: 13px;
-  color: var(--gold-light);
-}
-
-.countdown-pill {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(10, 17, 40, 0.88);
-  border: 1px solid var(--gold-primary);
-  padding: 5px 14px;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--gold-light);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-}
-
-.live-metrics-bar {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.live-metric-chip {
-  background: rgba(10, 17, 40, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  font-size: 11.5px;
-  color: var(--text-secondary);
-}
-
-.live-metric-chip strong {
-  color: var(--gold-primary);
-}
-
-.scanner-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.guide-message-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: rgba(16, 26, 56, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-sm);
-  font-size: 12.5px;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-.guide-message-box.frontal {
-  border-color: rgba(52, 211, 153, 0.5);
-  background: rgba(6, 78, 59, 0.3);
-  color: #a7f3d0;
-}
-
-.scanner-controls {
-  display: flex;
-  gap: 6px;
-}
-
-.btn-outline-small {
-  flex: 1;
-  height: 38px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: var(--text-main);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  cursor: pointer;
-}
-
-.btn-gold-small {
-  flex: 1.4;
-  height: 38px;
-  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
-  color: #0a1128;
-  font-weight: 700;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 12.5px;
-  cursor: pointer;
-}
-
-.scanner-error-card {
-  position: absolute;
-  inset: 0;
-  background: rgba(10, 17, 40, 0.95);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  text-align: center;
-  gap: 10px;
-}
-
-.scanner-error-card h3 {
-  font-size: 15px;
-}
-
-.scanner-error-card p {
-  font-size: 12.5px;
-  color: var(--text-secondary);
-}
-
-.error-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-  max-width: 240px;
-  margin-top: 6px;
-}
-
 .btn-gold-fill,
 .btn-outline {
-  height: 38px;
+  height: 40px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -618,7 +585,7 @@ html, body {
 
 /* ==========================================================================
    생성 중 뷰
-   ========================================================================= */
+   ========================================================================== */
 .generating-view {
   min-height: 65vh;
   display: flex;

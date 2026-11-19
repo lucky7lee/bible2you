@@ -69,13 +69,13 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }): number 
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-// 얼굴 정면 여부 검사
+// 얼굴 정면 여부 검사 (오늘 관상 운세 앱과 100% 동일)
 export function checkIsFaceFrontal(landmarks: NormalizedLandmark[]): {
   isFrontal: boolean;
   message: string;
 } {
   if (!landmarks || landmarks.length < 468) {
-    return { isFrontal: false, message: '얼굴을 화면 중앙에 맞춰주세요' };
+    return { isFrontal: false, message: '화면 중앙 가이드 안에 얼굴을 맞춰주세요' };
   }
 
   const leftCheek = landmarks[234];
@@ -87,27 +87,29 @@ export function checkIsFaceFrontal(landmarks: NormalizedLandmark[]): {
   const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
   const faceHeight = Math.abs(chin.y - topForehead.y);
 
-  if (faceWidth < 0.2 || faceHeight < 0.22) {
+  if (faceWidth < 0.22 || faceHeight < 0.25) {
     return { isFrontal: false, message: '카메라에 조금 더 가까이 다가와 주세요' };
   }
-  if (faceWidth > 0.88) {
+  if (faceWidth > 0.85) {
     return { isFrontal: false, message: '카메라에서 살짝만 뒤로 물러나 주세요' };
   }
 
+  // 좌우 회전 (Yaw)
   const dLeft = Math.abs(noseTip.x - leftCheek.x);
   const dRight = Math.abs(rightCheek.x - noseTip.x);
   const yawRatio = dLeft / (dRight || 0.001);
 
-  if (yawRatio < 0.55 || yawRatio > 1.8) {
+  if (yawRatio < 0.58 || yawRatio > 1.72) {
     return { isFrontal: false, message: '고개를 정면으로 바르게 돌려주세요' };
   }
 
+  // 상하 기울기 (Pitch)
   const midY = (topForehead.y + chin.y) / 2;
   const pitchDiff = noseTip.y - midY;
-  if (pitchDiff < -0.14) {
+  if (pitchDiff < -0.12) {
     return { isFrontal: false, message: '턱을 살짝 내리고 정면을 바라봐 주세요' };
   }
-  if (pitchDiff > 0.16) {
+  if (pitchDiff > 0.14) {
     return { isFrontal: false, message: '고개를 살짝 들어 정면을 바라봐 주세요' };
   }
 
@@ -256,13 +258,13 @@ const FACE_OVAL_INDICES = [
   162, 21, 54, 103, 67, 109, 10,
 ];
 
-// 카메라 뷰파인더 위에 성스러운 오버레이(완벽한 둥근 원형 가이드 & 스캔 효과) 렌더링
-export function drawGracefulOverlay(
+// 오늘 관상 운세 앱의 drawMysticalOverlay 방식 100% 동일 구현
+export function drawMysticalOverlay(
   ctx: CanvasRenderingContext2D,
-  landmarks: NormalizedLandmark[] | undefined,
+  landmarks: NormalizedLandmark[],
   width: number,
   height: number,
-  progress: number,
+  scanProgress: number, // 0 ~ 1
   isFrontal: boolean,
   isMirrored: boolean
 ) {
@@ -272,142 +274,94 @@ export function drawGracefulOverlay(
   const mapX = (nx: number) => (isMirrored ? (1 - nx) * width : nx * width);
   const mapY = (ny: number) => ny * height;
 
-  if (landmarks && landmarks.length >= 468) {
-    // 1. 얼굴 윤곽선 (황금빛 라인)
-    ctx.beginPath();
-    FACE_OVAL_INDICES.forEach((idx, i) => {
-      const lm = landmarks[idx];
-      const x = mapX(lm.x);
-      const y = mapY(lm.y);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.closePath();
+  // 1. 얼굴 윤곽선 (황금빛 라인)
+  ctx.beginPath();
+  FACE_OVAL_INDICES.forEach((idx, i) => {
+    const lm = landmarks[idx];
+    const x = mapX(lm.x);
+    const y = mapY(lm.y);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.closePath();
 
-    if (isFrontal) {
-      ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
-      ctx.lineWidth = 2.4;
-      ctx.shadowColor = 'rgba(251, 191, 36, 0.6)';
-      ctx.shadowBlur = 10;
-    } else {
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-      ctx.lineWidth = 1.6;
-      ctx.shadowBlur = 0;
-    }
-    ctx.stroke();
-
-    // 2. 가로선 (이마, 눈, 코끝)
-    ctx.shadowBlur = 0;
-    const leftC = mapX(landmarks[234].x);
-    const rightC = mapX(landmarks[454].x);
-    const minX = Math.min(leftC, rightC) - 10;
-    const maxX = Math.max(leftC, rightC) + 10;
-    const glabellaY = mapY(landmarks[9].y);
-    const noseBaseY = mapY(landmarks[2].y);
-
-    ctx.setLineDash([4, 4]);
-    ctx.strokeStyle = isFrontal
-      ? 'rgba(254, 240, 138, 0.5)'
-      : 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 1.2;
-
-    [glabellaY, noseBaseY].forEach((y) => {
-      ctx.beginPath();
-      ctx.moveTo(minX, y);
-      ctx.lineTo(maxX, y);
-      ctx.stroke();
-    });
-    ctx.setLineDash([]);
-
-    // 3. 스캔 빔 애니메이션 (정면일 때만)
-    if (isFrontal) {
-      const topY = mapY(landmarks[10].y) - 12;
-      const botY = mapY(landmarks[152].y) + 12;
-      const sweepPhase = (Date.now() % 1600) / 1600;
-      const sweepY = topY + (botY - topY) * Math.sin(sweepPhase * Math.PI);
-
-      const grad = ctx.createLinearGradient(minX, sweepY - 12, minX, sweepY + 12);
-      grad.addColorStop(0, 'rgba(251, 191, 36, 0)');
-      grad.addColorStop(0.5, 'rgba(254, 240, 138, 0.85)');
-      grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(minX, sweepY - 12, maxX - minX, 24);
-    }
-
-    // 4. 완벽한 둥근 원형(Perfect Circle) 링 가이드
-    const nose = landmarks[1];
-    const topForehead = landmarks[10];
-    const chin = landmarks[152];
-    const cx = mapX(nose.x);
-    const cy = (mapY(topForehead.y) + mapY(chin.y)) / 2;
-    // 얼굴 크기를 감싸는 완벽한 반지름 (단일 반지름 r로 그리기 때문에 화면 왜곡 없는 완벽한 정원!)
-    const faceW = Math.abs(maxX - minX);
-    const faceH = Math.abs(mapY(chin.y) - mapY(topForehead.y));
-    const radius = Math.max(faceW, faceH) * 0.62;
-
-    // 배경 트랙 둥근 원
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = isFrontal
-      ? 'rgba(251, 191, 36, 0.35)'
-      : 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // 상단 십자가 심볼
-    const crossY = cy - radius - 16;
-    ctx.save();
-    ctx.strokeStyle = isFrontal ? '#fbbf24' : 'rgba(255, 255, 255, 0.7)';
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(cx, crossY - 8);
-    ctx.lineTo(cx, crossY + 10);
-    ctx.moveTo(cx - 6, crossY - 2);
-    ctx.lineTo(cx + 6, crossY - 2);
-    ctx.stroke();
-    ctx.restore();
-
-    // 스캔 진행 아크 (둥근 원을 따라 3초간 채워지는 프로그레스)
-    if (progress > 0) {
-      ctx.beginPath();
-      ctx.arc(
-        cx,
-        cy,
-        radius,
-        -Math.PI / 2,
-        -Math.PI / 2 + Math.PI * 2 * clamp(progress, 0, 1)
-      );
-      ctx.strokeStyle = '#fde68a';
-      ctx.lineWidth = 4.5;
-      ctx.lineCap = 'round';
-      ctx.shadowColor = 'rgba(253, 230, 138, 0.85)';
-      ctx.shadowBlur = 12;
-      ctx.stroke();
-    }
+  if (isFrontal) {
+    ctx.strokeStyle = 'rgba(250, 228, 158, 0.85)';
+    ctx.lineWidth = 2.4;
+    ctx.shadowColor = 'rgba(212, 175, 55, 0.7)';
+    ctx.shadowBlur = 12;
   } else {
-    // 얼굴 미인식 시: 화면 중앙에 대기용 둥근 원형 가이드
-    const cx = width / 2;
-    const cy = height / 2;
-    const radius = Math.min(width, height) * 0.32;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.lineWidth = 1.6;
+    ctx.shadowBlur = 0;
+  }
+  ctx.stroke();
 
+  // 2. 가로 가이드선 (이마, 눈썹, 코끝)
+  ctx.shadowBlur = 0;
+  const leftC = mapX(landmarks[234].x);
+  const rightC = mapX(landmarks[454].x);
+  const minX = Math.min(leftC, rightC) - 8;
+  const maxX = Math.max(leftC, rightC) + 8;
+  const glabellaY = mapY(landmarks[9].y);
+  const noseBaseY = mapY(landmarks[2].y);
+
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = isFrontal
+    ? 'rgba(247, 225, 153, 0.5)'
+    : 'rgba(255, 255, 255, 0.2)';
+  ctx.lineWidth = 1.2;
+
+  [glabellaY, noseBaseY].forEach((y) => {
     ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 6]);
+    ctx.moveTo(minX, y);
+    ctx.lineTo(maxX, y);
     ctx.stroke();
-    ctx.setLineDash([]);
+  });
+  ctx.setLineDash([]);
 
-    // 십자가 포인트
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
+  // 3. 스캔 빔 애니메이션 (정면일 때만)
+  if (isFrontal) {
+    const topY = mapY(landmarks[10].y) - 10;
+    const botY = mapY(landmarks[152].y) + 10;
+    const sweepPhase = (Date.now() % 1600) / 1600;
+    const sweepY = topY + (botY - topY) * Math.sin(sweepPhase * Math.PI);
+
+    const grad = ctx.createLinearGradient(minX, sweepY - 12, minX, sweepY + 12);
+    grad.addColorStop(0, 'rgba(212, 175, 55, 0)');
+    grad.addColorStop(0.5, 'rgba(255, 235, 160, 0.85)');
+    grad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(minX, sweepY - 12, maxX - minX, 24);
+  }
+
+  // 4. 스캔 진행도 둥근 원형 링 (오늘 관상 운세 앱과 100% 동일)
+  if (scanProgress > 0) {
+    const cx = mapX(landmarks[1].x);
+    const cy = (mapY(landmarks[10].y) + mapY(landmarks[152].y)) / 2;
+    const r = Math.max(maxX - minX, mapY(landmarks[152].y) - mapY(landmarks[10].y)) * 0.58;
+
+    // 배경 트랙
     ctx.beginPath();
-    ctx.moveTo(cx, cy - radius - 18);
-    ctx.lineTo(cx, cy - radius - 2);
-    ctx.moveTo(cx - 6, cy - radius - 10);
-    ctx.lineTo(cx + 6, cy - radius - 10);
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // 채움 아크 (황금빛)
+    ctx.beginPath();
+    ctx.arc(
+      cx,
+      cy,
+      r,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * clamp(scanProgress, 0, 1)
+    );
+    ctx.strokeStyle = '#fde68a';
+    ctx.lineWidth = 4.5;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = 'rgba(253, 230, 138, 0.8)';
+    ctx.shadowBlur = 10;
     ctx.stroke();
   }
 
