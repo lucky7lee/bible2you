@@ -28,7 +28,6 @@ async function createLandmarker(runningMode: 'VIDEO' | 'IMAGE'): Promise<FaceLan
       numFaces: 1,
     });
   } catch {
-    // 모바일 GPU 가속 불가 시 CPU로 안전 폴백
     return await FaceLandmarker.createFromOptions(vision, {
       baseOptions: {
         modelAssetPath: MODEL_URL,
@@ -70,13 +69,13 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }): number 
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-// 얼굴 정면 여부 검사 (코 중앙과 양 볼의 대칭성으로 수평각 파악)
+// 얼굴 정면 여부 검사
 export function checkIsFaceFrontal(landmarks: NormalizedLandmark[]): {
   isFrontal: boolean;
   message: string;
 } {
   if (!landmarks || landmarks.length < 468) {
-    return { isFrontal: false, message: '얼굴을 가이드 중앙에 맞춰주세요' };
+    return { isFrontal: false, message: '얼굴을 화면 중앙에 맞춰주세요' };
   }
 
   const leftCheek = landmarks[234];
@@ -88,33 +87,31 @@ export function checkIsFaceFrontal(landmarks: NormalizedLandmark[]): {
   const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
   const faceHeight = Math.abs(chin.y - topForehead.y);
 
-  if (faceWidth < 0.22 || faceHeight < 0.25) {
+  if (faceWidth < 0.2 || faceHeight < 0.22) {
     return { isFrontal: false, message: '카메라에 조금 더 가까이 다가와 주세요' };
   }
-  if (faceWidth > 0.85) {
+  if (faceWidth > 0.88) {
     return { isFrontal: false, message: '카메라에서 살짝만 뒤로 물러나 주세요' };
   }
 
-  // 좌우 회전 (Yaw)
   const dLeft = Math.abs(noseTip.x - leftCheek.x);
   const dRight = Math.abs(rightCheek.x - noseTip.x);
   const yawRatio = dLeft / (dRight || 0.001);
 
-  if (yawRatio < 0.58 || yawRatio > 1.72) {
+  if (yawRatio < 0.55 || yawRatio > 1.8) {
     return { isFrontal: false, message: '고개를 정면으로 바르게 돌려주세요' };
   }
 
-  // 상하 기울기 (Pitch)
   const midY = (topForehead.y + chin.y) / 2;
   const pitchDiff = noseTip.y - midY;
-  if (pitchDiff < -0.12) {
+  if (pitchDiff < -0.14) {
     return { isFrontal: false, message: '턱을 살짝 내리고 정면을 바라봐 주세요' };
   }
-  if (pitchDiff > 0.14) {
+  if (pitchDiff > 0.16) {
     return { isFrontal: false, message: '고개를 살짝 들어 정면을 바라봐 주세요' };
   }
 
-  return { isFrontal: true, message: '정면이 확인되었습니다. 은혜의 빛을 스캔 중입니다...' };
+  return { isFrontal: true, message: '정면 확인! 주님의 은혜를 스캔 중입니다...' };
 }
 
 // 랜드마크 및 블렌드셰이프로부터 은혜의 척도 추출
@@ -126,7 +123,6 @@ export function extractFaceMetrics(
   const w = 640;
   const h = 480;
 
-  // 블렌드셰이프 맵
   const bsMap = new Map<string, number>();
   if (blendshapes) {
     for (const b of blendshapes) {
@@ -150,7 +146,7 @@ export function extractFaceMetrics(
   const eyeBlinkRight = bsMap.get('eyeBlinkRight') || 0;
   const eyeSquint = (eyeBlinkLeft + eyeBlinkRight) / 2;
 
-  // 1. 미소 & 화평 점수 (0~100)
+  // 1. 미소 & 화평 점수
   const mouthL = pt(landmarks[61], w, h);
   const mouthR = pt(landmarks[291], w, h);
   const mouthTop = pt(landmarks[13], w, h);
@@ -163,7 +159,7 @@ export function extractFaceMetrics(
     clamp(rawSmile * 82 + (mouthRatio > 0.12 ? 18 : 6), 25, 98)
   );
 
-  // 2. 영적 활력 & 총명함 점수 (눈의 또렷함, 눈빛의 생기)
+  // 2. 영적 활력 & 총명함 점수
   const leftEyeTop = pt(landmarks[159], w, h);
   const leftEyeBottom = pt(landmarks[145], w, h);
   const leftEyeL = pt(landmarks[33], w, h);
@@ -254,105 +250,168 @@ export function extractFaceMetrics(
   };
 }
 
-// 카메라 뷰파인더 위에 성스러운 오버레이(골드 십자가 가이드라인 & 빛무리) 렌더링
+const FACE_OVAL_INDICES = [
+  10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379,
+  378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
+  162, 21, 54, 103, 67, 109, 10,
+];
+
+// 카메라 뷰파인더 위에 성스러운 오버레이(완벽한 둥근 원형 가이드 & 스캔 효과) 렌더링
 export function drawGracefulOverlay(
   ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
   landmarks: NormalizedLandmark[] | undefined,
+  width: number,
+  height: number,
+  progress: number,
   isFrontal: boolean,
-  progress: number
+  isMirrored: boolean
 ) {
-  ctx.clearRect(0, 0, w, h);
-
-  const cx = w / 2;
-  const cy = h / 2 - 10;
-  // 단정한 둥근 원형 가이드
-  const radius = Math.min(w, h) * 0.36;
-
-  // 1. 바깥쪽 어두운 오버레이 마스크 (원형 제외)
+  ctx.clearRect(0, 0, width, height);
   ctx.save();
-  ctx.fillStyle = 'rgba(10, 17, 40, 0.45)';
-  ctx.fillRect(0, 0, w, h);
 
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+  const mapX = (nx: number) => (isMirrored ? (1 - nx) * width : nx * width);
+  const mapY = (ny: number) => ny * height;
 
-  // 2. 둥근 원형 가이드 테두리 (골드 & 은혜의 빛)
-  ctx.save();
-  const guideGrad = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
-  if (isFrontal) {
-    guideGrad.addColorStop(0, '#fef08a');
-    guideGrad.addColorStop(0.5, '#f59e0b');
-    guideGrad.addColorStop(1, '#d97706');
-    ctx.shadowColor = '#fbbf24';
-    ctx.shadowBlur = 18;
-  } else {
-    guideGrad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
-    guideGrad.addColorStop(1, 'rgba(212, 175, 55, 0.5)');
-    ctx.shadowColor = 'rgba(212, 175, 55, 0.3)';
-    ctx.shadowBlur = 8;
-  }
+  if (landmarks && landmarks.length >= 468) {
+    // 1. 얼굴 윤곽선 (황금빛 라인)
+    ctx.beginPath();
+    FACE_OVAL_INDICES.forEach((idx, i) => {
+      const lm = landmarks[idx];
+      const x = mapX(lm.x);
+      const y = mapY(lm.y);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
 
-  ctx.strokeStyle = guideGrad;
-  ctx.lineWidth = isFrontal ? 3.5 : 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.restore();
+    if (isFrontal) {
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+      ctx.lineWidth = 2.4;
+      ctx.shadowColor = 'rgba(251, 191, 36, 0.6)';
+      ctx.shadowBlur = 10;
+    } else {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 1.6;
+      ctx.shadowBlur = 0;
+    }
+    ctx.stroke();
 
-  // 3. 상단 십자가 심볼
-  ctx.save();
-  ctx.strokeStyle = isFrontal ? '#fbbf24' : 'rgba(255, 255, 255, 0.7)';
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = 'round';
-  const crossY = cy - radius + 22;
-  ctx.beginPath();
-  ctx.moveTo(cx, crossY - 9);
-  ctx.lineTo(cx, crossY + 11);
-  ctx.moveTo(cx - 7, crossY - 3);
-  ctx.lineTo(cx + 7, crossY - 3);
-  ctx.stroke();
-  ctx.restore();
+    // 2. 가로선 (이마, 눈, 코끝)
+    ctx.shadowBlur = 0;
+    const leftC = mapX(landmarks[234].x);
+    const rightC = mapX(landmarks[454].x);
+    const minX = Math.min(leftC, rightC) - 10;
+    const maxX = Math.max(leftC, rightC) + 10;
+    const glabellaY = mapY(landmarks[9].y);
+    const noseBaseY = mapY(landmarks[2].y);
 
-  // 4. 스캔 진행 프로그레스 원호
-  if (progress > 0) {
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = isFrontal
+      ? 'rgba(254, 240, 138, 0.5)'
+      : 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1.2;
+
+    [glabellaY, noseBaseY].forEach((y) => {
+      ctx.beginPath();
+      ctx.moveTo(minX, y);
+      ctx.lineTo(maxX, y);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+
+    // 3. 스캔 빔 애니메이션 (정면일 때만)
+    if (isFrontal) {
+      const topY = mapY(landmarks[10].y) - 12;
+      const botY = mapY(landmarks[152].y) + 12;
+      const sweepPhase = (Date.now() % 1600) / 1600;
+      const sweepY = topY + (botY - topY) * Math.sin(sweepPhase * Math.PI);
+
+      const grad = ctx.createLinearGradient(minX, sweepY - 12, minX, sweepY + 12);
+      grad.addColorStop(0, 'rgba(251, 191, 36, 0)');
+      grad.addColorStop(0.5, 'rgba(254, 240, 138, 0.85)');
+      grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(minX, sweepY - 12, maxX - minX, 24);
+    }
+
+    // 4. 완벽한 둥근 원형(Perfect Circle) 링 가이드
+    const nose = landmarks[1];
+    const topForehead = landmarks[10];
+    const chin = landmarks[152];
+    const cx = mapX(nose.x);
+    const cy = (mapY(topForehead.y) + mapY(chin.y)) / 2;
+    // 얼굴 크기를 감싸는 완벽한 반지름 (단일 반지름 r로 그리기 때문에 화면 왜곡 없는 완벽한 정원!)
+    const faceW = Math.abs(maxX - minX);
+    const faceH = Math.abs(mapY(chin.y) - mapY(topForehead.y));
+    const radius = Math.max(faceW, faceH) * 0.62;
+
+    // 배경 트랙 둥근 원
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = isFrontal
+      ? 'rgba(251, 191, 36, 0.35)'
+      : 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // 상단 십자가 심볼
+    const crossY = cy - radius - 16;
     ctx.save();
-    ctx.strokeStyle = '#38bdf8';
-    ctx.shadowColor = '#0284c7';
-    ctx.shadowBlur = 16;
-    ctx.lineWidth = 5;
+    ctx.strokeStyle = isFrontal ? '#fbbf24' : 'rgba(255, 255, 255, 0.7)';
+    ctx.lineWidth = 2.5;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.arc(
-      cx,
-      cy,
-      radius + 6,
-      -Math.PI / 2,
-      -Math.PI / 2 + Math.PI * 2 * progress
-    );
+    ctx.moveTo(cx, crossY - 8);
+    ctx.lineTo(cx, crossY + 10);
+    ctx.moveTo(cx - 6, crossY - 2);
+    ctx.lineTo(cx + 6, crossY - 2);
     ctx.stroke();
     ctx.restore();
+
+    // 스캔 진행 아크 (둥근 원을 따라 3초간 채워지는 프로그레스)
+    if (progress > 0) {
+      ctx.beginPath();
+      ctx.arc(
+        cx,
+        cy,
+        radius,
+        -Math.PI / 2,
+        -Math.PI / 2 + Math.PI * 2 * clamp(progress, 0, 1)
+      );
+      ctx.strokeStyle = '#fde68a';
+      ctx.lineWidth = 4.5;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(253, 230, 138, 0.85)';
+      ctx.shadowBlur = 12;
+      ctx.stroke();
+    }
+  } else {
+    // 얼굴 미인식 시: 화면 중앙에 대기용 둥근 원형 가이드
+    const cx = width / 2;
+    const cy = height / 2;
+    const radius = Math.min(width, height) * 0.32;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 십자가 포인트
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - radius - 18);
+    ctx.lineTo(cx, cy - radius - 2);
+    ctx.moveTo(cx - 6, cy - radius - 10);
+    ctx.lineTo(cx + 6, cy - radius - 10);
+    ctx.stroke();
   }
 
-  // 5. 얼굴 감지 시 주요 랜드마크에 은은한 골드 빛 파티클
-  if (landmarks && landmarks.length > 0) {
-    ctx.save();
-    ctx.fillStyle = isFrontal ? 'rgba(251, 191, 36, 0.75)' : 'rgba(255, 255, 255, 0.4)';
-    const keyPoints = [1, 33, 133, 159, 263, 362, 386, 61, 291, 13, 14, 152, 10, 67, 297];
-    for (const idx of keyPoints) {
-      const p = landmarks[idx];
-      if (p) {
-        ctx.beginPath();
-        ctx.arc(p.x * w, p.y * h, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-    ctx.restore();
-  }
+  ctx.restore();
 }
 
 // 데모용 가상 메트릭 생성

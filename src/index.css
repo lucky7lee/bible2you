@@ -1,18 +1,21 @@
 /* ==========================================================================
    오늘 성경 말씀 To You (Bible To You)
-   Sacred Christian Theme CSS - Clean & Focused Edition
+   Sacred Christian Theme CSS - Clean, Consistent & Focused Edition
    ========================================================================== */
 
 :root {
   --bg-deep: #070b19;
-  --bg-card: rgba(15, 23, 48, 0.85);
-  --bg-card-sacred: rgba(22, 34, 72, 0.92);
+  --bg-card: rgba(15, 23, 48, 0.88);
+  --bg-card-sacred: rgba(22, 34, 72, 0.95);
 
   --gold-primary: #fbbf24;
   --gold-light: #fef08a;
   --gold-dark: #d97706;
-  --gold-border: rgba(251, 191, 36, 0.25);
-  --gold-glow: rgba(251, 191, 36, 0.15);
+  --gold-border: rgba(251, 191, 36, 0.28);
+  --gold-glow: rgba(251, 191, 36, 0.18);
+
+  --olive-primary: #34d399;
+  --blue-primary: #60a5fa;
 
   --text-main: #f8fafc;
   --text-secondary: #cbd5e1;
@@ -44,9 +47,9 @@ html, body {
   min-height: 100vh;
   overflow-x: hidden;
   background-image:
-    radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.1) 0%, transparent 60%),
-    radial-gradient(circle at 15% 35%, rgba(30, 58, 138, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.12) 0%, transparent 50%);
+    radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 15% 35%, rgba(30, 58, 138, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.14) 0%, transparent 50%);
   background-attachment: fixed;
 }
 
@@ -70,10 +73,10 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(7, 11, 25, 0.88);
+  background: rgba(7, 11, 25, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .brand-logo {
@@ -343,7 +346,6 @@ html, body {
   padding: 4px 0 0;
 }
 
-/* 하단 1줄 서비스 요약 바 */
 .service-tags-bar {
   display: flex;
   align-items: center;
@@ -616,7 +618,7 @@ html, body {
 
 /* ==========================================================================
    생성 중 뷰
-   ========================================================================== */
+   ========================================================================= */
 .generating-view {
   min-height: 65vh;
   display: flex;
@@ -664,7 +666,7 @@ html, body {
 }
 
 /* ==========================================================================
-   결과 화면 (BibleResult - 깔끔 & 집중도 높은 레이아웃)
+   결과 화면 (BibleResult - 안정적인 2줄 상단 & 1~6 동일 구성 디자인)
    ========================================================================== */
 .result-container {
   display: flex;
@@ -673,57 +675,70 @@ html, body {
   padding-top: 4px;
 }
 
-/* 1. 상단 프로필 요약 바 */
-.profile-summary-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
+/* 0. 상단 프로필 요약 카드 (절대 망가지지 않는 2줄 안정적 레이아웃) */
+.profile-header-card {
   background: var(--bg-card);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
-.profile-left {
+/* 1번째 줄: 이름/생애주기 + 날짜 */
+.profile-row-primary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.profile-left-identity {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
 .user-avatar-circle {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--gold-primary);
+  flex-shrink: 0;
 }
 
 .user-avatar-placeholder {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(251, 191, 36, 0.12);
   border: 1px solid var(--gold-border);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.profile-names {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-main-line {
+.user-identity-text {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14.5px;
+  flex-wrap: wrap;
+}
+
+.user-name-title {
+  font-size: 15px;
+  font-weight: 700;
   color: #ffffff;
 }
 
-.stage-pill {
-  font-size: 10.5px;
+.stage-badge {
+  font-size: 11px;
   padding: 1px 7px;
   border-radius: var(--radius-full);
   background: rgba(251, 191, 36, 0.15);
@@ -731,52 +746,149 @@ html, body {
   font-weight: 500;
 }
 
-.user-sub-line {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.score-text {
-  color: var(--gold-primary);
-  font-weight: 600;
-}
-
-.date-badge-small {
+.date-badge-wrap {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 11px;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
-/* 2. 거룩한 성경 말씀 마스터 카드 (가장 돋보이는 카드) */
-.holy-verse-master-card {
-  background: linear-gradient(150deg, rgba(28, 44, 94, 0.95) 0%, rgba(14, 22, 52, 0.95) 100%);
-  border: 2px solid var(--gold-primary);
-  border-radius: var(--radius-lg);
-  padding: 20px 18px;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(251, 191, 36, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.verse-top-row {
+/* 2번째 줄: 얼굴 상태 + 은혜 지수 */
+.profile-row-secondary {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
-.verse-badge-group {
+.face-expression-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--gold-light);
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.grace-score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.grace-score-pill strong {
+  color: var(--gold-primary);
+  font-size: 13.5px;
+  font-family: var(--font-cinzel), var(--font-sans);
+}
+
+/* =========================================================================
+   1~6번 차례차례 동일한 통일 카드 포맷 (Ordered Section Card)
+   ========================================================================= */
+.ordered-section-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-lg);
+  padding: 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+/* 1번 오늘의 말씀만 황금 테두리로 강렬하게 강조 */
+.verse-highlight-card {
+  background: linear-gradient(155deg, rgba(26, 42, 90, 0.96) 0%, rgba(13, 20, 48, 0.96) 100%);
+  border: 2px solid var(--gold-primary);
+  box-shadow: 0 10px 32px rgba(251, 191, 36, 0.22), 0 0 20px rgba(251, 191, 36, 0.12);
+  padding: 18px 18px 20px;
+}
+
+/* 통일된 카드 헤더 바 */
+.section-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.section-number-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-number-badge.gold {
+  background: var(--gold-primary);
+  color: #0a1128;
+}
+
+.section-number-badge.green {
+  background: var(--olive-primary);
+  color: #0a1128;
+}
+
+.section-number-badge.blue {
+  background: var(--blue-primary);
+  color: #0a1128;
+}
+
+.section-number-badge.olive {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.section-title-text {
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.section-title-text.gold {
+  color: var(--gold-light);
+}
+
+.section-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* =========================================================================
+   1. 오늘의 말씀 세부 스타일 (1.5배 큰 글씨)
+   ========================================================================= */
+.verse-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.verse-meta-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.verse-testament-pill {
+.testament-pill {
   font-size: 11px;
   font-weight: 700;
   padding: 2px 7px;
@@ -785,141 +897,97 @@ html, body {
   color: var(--gold-light);
 }
 
-.verse-reference-text {
+.verse-reference-title {
   font-family: var(--font-cinzel), var(--font-serif);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #ffffff;
 }
 
-.verse-theme-caption {
+.verse-theme-quote-tag {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: 12.5px;
   color: var(--gold-light);
   font-weight: 600;
-  padding: 2px 0;
 }
 
-.verse-listen-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(251, 191, 36, 0.15);
-  border: 1px solid var(--gold-border);
-  color: var(--gold-light);
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.verse-listen-btn:hover,
-.verse-listen-btn.speaking {
-  background: var(--gold-primary);
-  color: #0a1128;
-}
-
-.verse-main-quote {
+/* 1.5배 커진 거룩하고 웅장한 본문 말씀 (기존 19px -> 28px) */
+.verse-magnified-text {
   font-family: var(--font-serif);
-  font-size: 19px;
+  font-size: 27px;
   font-weight: 700;
   line-height: 1.65;
   color: #ffffff;
-  letter-spacing: -0.3px;
-  padding: 4px 0;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.4px;
+  padding: 6px 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
-.verse-grace-meaning {
-  background: rgba(0, 0, 0, 0.25);
+@media (max-width: 420px) {
+  .verse-magnified-text {
+    font-size: 24px;
+    line-height: 1.6;
+  }
+}
+
+.verse-meaning-box {
+  background: rgba(0, 0, 0, 0.28);
   border-left: 3px solid var(--gold-primary);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.meaning-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.meaning-title {
   font-size: 11px;
   font-weight: 700;
   color: var(--gold-light);
-  margin-bottom: 3px;
 }
 
-.verse-grace-meaning p {
+.meaning-desc {
   font-size: 12.5px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
-/* 통일된 깔끔한 섹션 카드 (Clean Section Card) */
-.clean-section-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  padding: 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-
-.section-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-title-row h3 {
-  font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-/* 3. 묵상 카드 내부 */
-.mind-reflection-box {
+/* =========================================================================
+   2. 묵상 카드 세부 스타일
+   ========================================================================= */
+.diagnosis-box {
   background: rgba(251, 191, 36, 0.06);
   border: 1px solid rgba(251, 191, 36, 0.16);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.diagnosis-paragraph {
+  padding: 10px 12px;
   font-size: 13px;
   color: var(--gold-light);
   line-height: 1.55;
 }
 
-.reflection-paragraph {
+.reflection-text-box h4,
+.reflection-questions-wrap h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.reflection-text-box p {
   font-size: 13px;
   color: var(--text-main);
   line-height: 1.6;
 }
 
-.questions-clean-list {
+.questions-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-top: 2px;
 }
 
-.questions-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 2px;
-}
-
-.question-clean-item {
+.question-item {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -943,30 +1011,32 @@ html, body {
   margin-top: 1px;
 }
 
-/* 4. 하루 실천 카드 내부 */
-.action-mission-headline {
+/* =========================================================================
+   3. 실천 카드 세부 스타일
+   ========================================================================= */
+.core-mission-box {
   background: rgba(52, 211, 153, 0.12);
   border: 1px solid rgba(52, 211, 153, 0.25);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 8px 12px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .mission-tag {
   font-size: 10.5px;
   font-weight: 700;
   color: #34d399;
-  flex-shrink: 0;
 }
 
-.action-mission-headline strong {
+.mission-content {
   font-size: 13px;
+  font-weight: 600;
   color: #ffffff;
 }
 
-.checklist-container {
+.checklist-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -979,7 +1049,7 @@ html, body {
   background: rgba(10, 17, 40, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 9px 11px;
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
@@ -999,49 +1069,62 @@ html, body {
   color: #94a3b8;
 }
 
-.check-card.checked .check-description {
+.check-card.checked .check-desc {
   color: #64748b;
 }
 
-.check-indicator {
+.check-box-icon {
   margin-top: 1px;
   flex-shrink: 0;
+}
+
+.check-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .check-title {
   font-size: 13px;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 2px;
 }
 
-.check-description {
+.check-desc {
   font-size: 11.5px;
   color: var(--text-secondary);
   line-height: 1.4;
 }
 
-/* 5. 1분 기도문 & 세련된 아멘 버튼 */
-.prayer-card-highlight {
-  border-color: var(--gold-border);
-  background: linear-gradient(160deg, rgba(18, 30, 66, 0.9) 0%, rgba(10, 17, 40, 0.9) 100%);
+.checklist-subtip {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-align: right;
 }
 
-.prayer-clean-body {
+/* =========================================================================
+   4. 1분 기도문 세부 스타일 & 세련된 아멘 버튼
+   ========================================================================= */
+.prayer-highlight-card {
+  border-color: var(--gold-border);
+  background: linear-gradient(160deg, rgba(20, 32, 68, 0.9) 0%, rgba(10, 17, 40, 0.9) 100%);
+}
+
+.prayer-text-wrap {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.prayer-full-text {
+.prayer-content-text {
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: 14.5px;
   color: #f1f5f9;
   line-height: 1.8;
   white-space: pre-line;
 }
 
-.confession-banner {
+.confession-pill {
   background: rgba(251, 191, 36, 0.1);
   border-left: 3px solid var(--gold-primary);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
@@ -1050,23 +1133,23 @@ html, body {
   color: var(--text-secondary);
 }
 
-.confession-banner strong {
+.confession-pill strong {
   color: var(--gold-light);
 }
 
-.amen-btn-area {
+.amen-button-container {
   display: flex;
   justify-content: center;
   padding-top: 4px;
 }
 
-.amen-glow-button {
+.amen-glow-btn {
   width: 100%;
   max-width: 340px;
   padding: 12px 20px;
   border-radius: var(--radius-full);
   border: 1.5px solid var(--gold-primary);
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.18) 0%, rgba(217, 119, 6, 0.28) 100%);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(217, 119, 6, 0.3) 100%);
   color: var(--gold-light);
   font-size: 14px;
   font-weight: 700;
@@ -1079,95 +1162,120 @@ html, body {
   transition: all 0.25s ease;
 }
 
-.amen-glow-button:hover {
+.amen-glow-btn:hover {
   background: var(--gold-primary);
   color: #0a1128;
   transform: scale(1.02);
   box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
 }
 
-.amen-glow-button.active {
-  background: rgba(52, 211, 153, 0.2);
+.amen-glow-btn.amen-done {
+  background: rgba(52, 211, 153, 0.22);
   border-color: #34d399;
   color: #a7f3d0;
 }
 
-/* 6. 추천 찬양 & 영적 습관 콤팩트 카드 */
-.praise-habit-compact-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.praise-part,
-.habit-part {
-  background: var(--bg-card);
+/* =========================================================================
+   5. 추천 찬양 세부 스타일
+   ========================================================================= */
+.praise-info-card {
+  background: rgba(10, 17, 40, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
-.part-label {
+.praise-header-line {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 2px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.praise-main-text {
-  font-size: 12.5px;
-  font-weight: 700;
+.praise-title {
+  font-size: 13.5px;
   color: #60a5fa;
 }
 
 .praise-artist {
-  font-size: 11px;
-  font-weight: 400;
+  font-size: 11.5px;
   color: var(--text-muted);
 }
 
 .praise-lyric-quote {
   font-family: var(--font-serif);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
   font-style: italic;
-  line-height: 1.35;
+  line-height: 1.45;
+  padding-left: 22px;
 }
 
-.habit-text {
-  font-size: 11.5px;
-  color: var(--text-main);
-  line-height: 1.4;
-}
-
-.reading-tag {
-  font-size: 10.5px;
-  color: var(--gold-light);
-  margin-top: 2px;
-}
-
-/* 7. 하단 액션 버튼 그룹 */
-.result-footer-actions {
+/* =========================================================================
+   6. 작은 영적 습관 세부 스타일
+   ========================================================================= */
+.habit-info-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 4px;
+}
+
+.habit-row,
+.reading-row {
+  background: rgba(10, 17, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.habit-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.habit-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.habit-desc {
+  font-size: 12.5px;
+  color: var(--text-main);
+  line-height: 1.45;
+}
+
+.reading-target {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gold-light);
+}
+
+/* =========================================================================
+   하단 공유 및 네비게이션 버튼 (마스터 버튼)
+   ========================================================================= */
+.result-actions-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
 }
 
 .btn-share-master {
   width: 100%;
-  height: 46px;
+  height: 48px;
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   border: none;
   border-radius: var(--radius-md);
   color: #0a1128;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -1183,13 +1291,13 @@ html, body {
   box-shadow: 0 8px 22px rgba(217, 119, 6, 0.5);
 }
 
-.sub-nav-row {
+.sub-nav-buttons-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
-.sub-btn {
+.btn-sub-nav {
   height: 40px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1204,7 +1312,7 @@ html, body {
   cursor: pointer;
 }
 
-.sub-btn:hover {
+.btn-sub-nav:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--gold-light);
 }

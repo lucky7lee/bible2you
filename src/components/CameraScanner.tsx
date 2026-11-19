@@ -148,12 +148,14 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
           const currentVideo = videoRef.current;
           const canvas = canvasRef.current;
 
-          if (currentVideo && canvas && currentVideo.readyState >= 2) {
-            const vw = currentVideo.videoWidth;
-            const vh = currentVideo.videoHeight;
-            if (canvas.width !== vw || canvas.height !== vh) {
-              canvas.width = vw;
-              canvas.height = vh;
+          if (currentVideo && canvas && currentVideo.readyState >= 2 && currentVideo.videoWidth > 0) {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const cw = Math.max(1, Math.round(rect.width * dpr));
+            const ch = Math.max(1, Math.round(rect.height * dpr));
+            if (canvas.width !== cw || canvas.height !== ch) {
+              canvas.width = cw;
+              canvas.height = ch;
             }
 
             const ctx = canvas.getContext('2d');
@@ -164,6 +166,23 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
 
               const hasFace = !!(result && result.faceLandmarks && result.faceLandmarks.length > 0);
               setFaceDetected(hasFace);
+
+              // 비디오 object-fit: cover 보정 계산 (화면 찌그러짐 원천 방지)
+              const videoAspect = currentVideo.videoWidth / currentVideo.videoHeight;
+              const canvasAspect = cw / ch;
+              let drawW = cw;
+              let drawH = ch;
+              let offsetX = 0;
+              let offsetY = 0;
+              if (videoAspect > canvasAspect) {
+                drawH = ch;
+                drawW = ch * videoAspect;
+                offsetX = (cw - drawW) / 2;
+              } else {
+                drawW = cw;
+                drawH = cw / videoAspect;
+                offsetY = (ch - drawH) / 2;
+              }
 
               if (hasFace) {
                 const landmarks = result.faceLandmarks[0];
@@ -191,7 +210,19 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
                   const remainingSec = Math.max(1, Math.ceil((SCAN_DURATION_MS - elapsed) / 1000));
                   setCountdownSec(remainingSec);
 
-                  drawGracefulOverlay(ctx, vw, vh, landmarks, true, ratio);
+                  ctx.clearRect(0, 0, cw, ch);
+                  ctx.save();
+                  ctx.translate(offsetX, offsetY);
+                  drawGracefulOverlay(
+                    ctx,
+                    landmarks,
+                    drawW,
+                    drawH,
+                    ratio,
+                    true,
+                    facingMode === 'user'
+                  );
+                  ctx.restore();
 
                   if (ratio >= 1 && !completedRef.current) {
                     finalizeScan(metrics);
@@ -201,7 +232,20 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
                   frontalStartTimeRef.current = null;
                   setScanProgress(0);
                   setCountdownSec(null);
-                  drawGracefulOverlay(ctx, vw, vh, landmarks, false, 0);
+
+                  ctx.clearRect(0, 0, cw, ch);
+                  ctx.save();
+                  ctx.translate(offsetX, offsetY);
+                  drawGracefulOverlay(
+                    ctx,
+                    landmarks,
+                    drawW,
+                    drawH,
+                    0,
+                    false,
+                    facingMode === 'user'
+                  );
+                  ctx.restore();
                 }
               } else {
                 frontalStartTimeRef.current = null;
@@ -211,7 +255,20 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({
                 setGuideMessage('얼굴이 인식되지 않았습니다. 화면 중앙을 바라봐 주세요.');
                 setLiveSmile(null);
                 setLiveVitality(null);
-                drawGracefulOverlay(ctx, vw, vh, undefined, false, 0);
+
+                ctx.clearRect(0, 0, cw, ch);
+                ctx.save();
+                ctx.translate(offsetX, offsetY);
+                drawGracefulOverlay(
+                  ctx,
+                  undefined,
+                  drawW,
+                  drawH,
+                  0,
+                  false,
+                  facingMode === 'user'
+                );
+                ctx.restore();
               }
             }
           }
