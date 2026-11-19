@@ -267,23 +267,23 @@ export function drawGracefulOverlay(
 
   const cx = w / 2;
   const cy = h / 2 - 10;
-  const rx = Math.min(w, h) * 0.36;
-  const ry = Math.min(w, h) * 0.46;
+  // 단정한 둥근 원형 가이드
+  const radius = Math.min(w, h) * 0.36;
 
-  // 1. 바깥쪽 어두운 오버레이 마스크 (타원형 제외)
+  // 1. 바깥쪽 어두운 오버레이 마스크 (원형 제외)
   ctx.save();
   ctx.fillStyle = 'rgba(10, 17, 40, 0.45)';
   ctx.fillRect(0, 0, w, h);
 
   ctx.globalCompositeOperation = 'destination-out';
   ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
-  // 2. 타원형 가이드 테두리 (골드 & 은혜의 빛)
+  // 2. 둥근 원형 가이드 테두리 (골드 & 은혜의 빛)
   ctx.save();
-  const guideGrad = ctx.createLinearGradient(cx - rx, cy - ry, cx + rx, cy + ry);
+  const guideGrad = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
   if (isFrontal) {
     guideGrad.addColorStop(0, '#fef08a');
     guideGrad.addColorStop(0.5, '#f59e0b');
@@ -300,7 +300,7 @@ export function drawGracefulOverlay(
   ctx.strokeStyle = guideGrad;
   ctx.lineWidth = isFrontal ? 3.5 : 2;
   ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
 
@@ -309,10 +309,10 @@ export function drawGracefulOverlay(
   ctx.strokeStyle = isFrontal ? '#fbbf24' : 'rgba(255, 255, 255, 0.7)';
   ctx.lineWidth = 2.5;
   ctx.lineCap = 'round';
-  const crossY = cy - ry + 24;
+  const crossY = cy - radius + 22;
   ctx.beginPath();
-  ctx.moveTo(cx, crossY - 10);
-  ctx.lineTo(cx, crossY + 12);
+  ctx.moveTo(cx, crossY - 9);
+  ctx.lineTo(cx, crossY + 11);
   ctx.moveTo(cx - 7, crossY - 3);
   ctx.lineTo(cx + 7, crossY - 3);
   ctx.stroke();
@@ -327,12 +327,10 @@ export function drawGracefulOverlay(
     ctx.lineWidth = 5;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.ellipse(
+    ctx.arc(
       cx,
       cy,
-      rx + 6,
-      ry + 6,
-      0,
+      radius + 6,
       -Math.PI / 2,
       -Math.PI / 2 + Math.PI * 2 * progress
     );

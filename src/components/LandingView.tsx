@@ -7,7 +7,6 @@ import {
   Calendar,
   User,
   Heart,
-  BookOpen,
   Sparkle,
 } from 'lucide-react';
 import { ChristianTitle, UserProfile } from '../types/bible';
@@ -137,19 +136,19 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
   return (
     <div className="landing-container">
-      {/* 1. 상단 성스러운 헤더 엠블럼 */}
+      {/* 1. 상단 성스러운 헤더 엠블럼 (컴팩트 & 세련) */}
       <header className="sacred-header">
-        <div className="cross-badge">
-          <svg className="holy-cross-icon" viewBox="0 0 40 40" fill="none">
+        <div className="cross-badge-compact">
+          <svg className="holy-cross-icon" viewBox="0 0 32 32" fill="none">
             <path
-              d="M20 5 L20 35 M11 15 L29 15"
+              d="M16 4 L16 28 M9 12 L23 12"
               stroke="url(#crossGold)"
-              strokeWidth="3.5"
+              strokeWidth="2.8"
               strokeLinecap="round"
             />
-            <circle cx="20" cy="15" r="2.5" fill="#ffffff" />
+            <circle cx="16" cy="12" r="2" fill="#ffffff" />
             <defs>
-              <linearGradient id="crossGold" x1="11" y1="5" x2="29" y2="35" gradientUnits="userSpaceOnUse">
+              <linearGradient id="crossGold" x1="9" y1="4" x2="23" y2="28" gradientUnits="userSpaceOnUse">
                 <stop stopColor="#fef08a" />
                 <stop offset="0.5" stopColor="#fbbf24" />
                 <stop offset="1" stopColor="#d97706" />
@@ -159,7 +158,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </div>
 
         <div className="date-pill">
-          <Calendar size={13} />
+          <Calendar size={12} />
           <span>{todayText}</span>
         </div>
 
@@ -167,30 +166,18 @@ export const LandingView: React.FC<LandingViewProps> = ({
           오늘 성경 말씀 <span className="gold-text">To You</span>
         </h1>
         <p className="landing-subtitle">
-          오늘 나의 얼굴 표정과 삶의 자리를 비추어
-          <br />
-          주님이 예비하신 <strong>맞춤 말씀과 묵상, 1분 기도</strong>를 전합니다
+          오늘 나의 얼굴 표정과 생애주기에 맞춘 <strong>말씀과 묵상, 1분 기도</strong>
         </p>
       </header>
 
-      {/* 2. 사용자 정보 입력 카드 */}
+      {/* 2. 사용자 정보 입력 카드 (한 화면에 쏙 들어오게 슬림화) */}
       <section className="input-card">
-        <div className="input-card-header">
-          <div className="header-tag">
-            <BookOpen size={14} />
-            <span>은혜의 나눔 정보 입력</span>
-          </div>
-          <p className="input-tip">
-            나이와 생애주기에 맞는 은혜의 말씀과 기도를 찾아드립니다.
-          </p>
-        </div>
-
         {/* 이름 & 직분 */}
         <div className="form-group-row">
           <div className="form-group" style={{ flex: 1.6 }}>
             <label className="form-label" htmlFor="user-name">
-              <User size={14} />
-              <span>성명 (이름)</span>
+              <User size={13} />
+              <span>성명</span>
             </label>
             <input
               id="user-name"
@@ -206,8 +193,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
           <div className="form-group" style={{ flex: 1 }}>
             <label className="form-label" htmlFor="user-title">
-              <Heart size={14} />
-              <span>직분 / 호칭</span>
+              <Heart size={13} />
+              <span>직분</span>
             </label>
             <select
               id="user-title"
@@ -227,7 +214,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         {/* 생년월일 (년/월/일 드롭다운) */}
         <div className="form-group">
           <label className="form-label">
-            <Calendar size={14} />
+            <Calendar size={13} />
             <span>생년월일 (양력)</span>
           </label>
           <div className="birth-select-grid">
@@ -293,10 +280,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
             disabled={isPhotoAnalyzing}
           >
             <div className="btn-glow" />
-            <Camera size={20} />
+            <Camera size={19} />
             <div className="btn-text-wrap">
-              <span className="btn-main-text">오늘의 얼굴 상태 스캔하기</span>
-              <span className="btn-sub-text">카메라로 평안과 은혜의 빛 측정 (3초)</span>
+              <span className="btn-main-text">오늘의 얼굴 스캔하기</span>
+              <span className="btn-sub-text">3초 카메라 스캔으로 은혜의 말씀 찾기</span>
             </div>
           </button>
 
@@ -307,8 +294,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
               onClick={handleUploadClick}
               disabled={isPhotoAnalyzing}
             >
-              <ImagePlus size={16} />
-              <span>사진 업로드로 분석</span>
+              <ImagePlus size={15} />
+              <span>사진 파일 업로드</span>
             </button>
 
             <button
@@ -317,8 +304,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
               onClick={onTryDemo}
               disabled={isPhotoAnalyzing}
             >
-              <Sparkles size={16} />
-              <span>체험 데모 보기</span>
+              <Sparkles size={15} />
+              <span>체험 데모</span>
             </button>
           </div>
 
@@ -331,47 +318,25 @@ export const LandingView: React.FC<LandingViewProps> = ({
           />
         </div>
 
-        {/* 4. 프라이버시 안심 안내 */}
-        <div className="privacy-badge">
-          <ShieldCheck size={14} color="#34d399" />
-          <span>
-            얼굴 영상 및 사진은 <strong>외부 서버로 전송되지 않으며</strong>, 오직 기기 내부에서만 안전하게 분석됩니다.
-          </span>
+        {/* 4. 프라이버시 안심 안내 (1줄 미니멀) */}
+        <div className="privacy-badge-compact">
+          <ShieldCheck size={13} color="#34d399" />
+          <span>안심하세요: 얼굴 영상 및 사진은 서버로 전송되지 않습니다.</span>
         </div>
       </section>
 
-      {/* 5. 프로그램 특징 카드 3종 안내 */}
-      <section className="feature-grid">
-        <div className="feature-item">
-          <div className="feature-icon gold">
-            <Sparkle size={18} />
-          </div>
-          <div className="feature-text">
-            <strong>오늘의 맞춤 말씀</strong>
-            <p>나이와 얼굴 표정을 분석해 오늘 꼭 필요한 생명의 말씀을 매칭합니다.</p>
-          </div>
-        </div>
-
-        <div className="feature-item">
-          <div className="feature-icon olive">
-            <BookOpen size={18} />
-          </div>
-          <div className="feature-text">
-            <strong>마음 진단과 묵상</strong>
-            <p>오늘의 수고와 기쁨을 보듬는 따뜻한 묵상 가이드와 질문을 전합니다.</p>
-          </div>
-        </div>
-
-        <div className="feature-item">
-          <div className="feature-icon blue">
-            <Heart size={18} />
-          </div>
-          <div className="feature-text">
-            <strong>하루 실천 & 1분 기도</strong>
-            <p>오늘 실천할 작은 일 3가지와 은혜로운 1분 기도문으로 하루를 채웁니다.</p>
-          </div>
-        </div>
-      </section>
+      {/* 5. 간결한 서비스 핵심 요약 태그 바 (한 화면에 깔끔하게) */}
+      <div className="service-tags-bar">
+        <span className="service-tag-item">
+          <Sparkle size={12} color="#fbbf24" /> 맞춤 성경 말씀
+        </span>
+        <span className="service-tag-divider">·</span>
+        <span className="service-tag-item">깊은 묵상</span>
+        <span className="service-tag-divider">·</span>
+        <span className="service-tag-item">작은 실천</span>
+        <span className="service-tag-divider">·</span>
+        <span className="service-tag-item">1분 기도</span>
+      </div>
     </div>
   );
 };

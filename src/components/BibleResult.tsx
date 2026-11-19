@@ -12,7 +12,6 @@ import {
   Music,
   CheckCircle,
   Circle,
-  Bookmark,
   Calendar,
   Sparkle,
 } from 'lucide-react';
@@ -36,7 +35,6 @@ export const BibleResult: React.FC<BibleResultProps> = ({
     lifeStage,
     todayDateText,
     todayTheme,
-    themeSubtitle,
     spiritualScore,
     verse,
     meditation,
@@ -77,7 +75,6 @@ export const BibleResult: React.FC<BibleResultProps> = ({
   const handleToggleAction = (id: string) => {
     setCheckedActions((prev) => {
       const next = { ...prev, [id]: !prev[id] };
-      // 체크되는 순간 가벼운 파티클
       if (next[id]) {
         triggerBlessingConfetti();
       }
@@ -87,7 +84,8 @@ export const BibleResult: React.FC<BibleResultProps> = ({
 
   // 전체 말씀 및 기도문 텍스트 클립보드 복사
   const handleCopyShare = async () => {
-    const text = `[오늘 성경 말씀 To You - ${user.name || '성도'}님을 위한 은혜의 선물]
+    const text = `[오늘 성경 말씀 To You]
+${user.name ? `${user.name} 성도님` : '성도님'}을 위한 오늘 하루의 말씀과 기도입니다.
 
 📖 오늘의 말씀: ${verse.reference}
 "${verse.text}"
@@ -96,13 +94,13 @@ export const BibleResult: React.FC<BibleResultProps> = ({
 ${meditation.reflectionText}
 
 ✨ 오늘 실천할 작은 일:
-${action.items.map((it, i) => `${i + 1}. ${it.title} - ${it.description}`).join('\n')}
+${action.items.map((it, i) => `${i + 1}. ${it.title}: ${it.description}`).join('\n')}
 
 🙏 오늘의 1분 기도:
 ${prayer.body}
 
 🎵 추천 찬양: ${christianDaily.recommendedPraise.title} (${christianDaily.recommendedPraise.artist})
-- 오늘 성경 말씀 To You (https://lucky7lee.github.io/bible2you/)`;
+- 오늘 성경 말씀 To You: https://lucky7lee.github.io/bible2you/`;
 
     try {
       await navigator.clipboard.writeText(text);
@@ -113,245 +111,216 @@ ${prayer.body}
     }
   };
 
-  const displayName = user.name ? `${user.name} ${user.title || '성도'}님` : `${user.title || '성도'}님`;
+  const displayName = user.name
+    ? `${user.name} ${user.title || '성도'}님`
+    : `${user.title || '성도'}님`;
 
   return (
     <div className="result-container">
-      {/* 1. 상단 사용자 뱃지 & 오늘의 은혜 테마 */}
-      <section className="result-header-card">
-        <div className="profile-top-row">
-          <div className="user-info-chip">
-            {metrics.snapshotDataUrl ? (
-              <img
-                src={metrics.snapshotDataUrl}
-                alt="얼굴 스캔 스냅샷"
-                className="user-snapshot-avatar"
-              />
-            ) : (
-              <div className="user-default-avatar">
-                <Heart size={16} color="#fbbf24" />
-              </div>
-            )}
-            <div className="user-text-info">
-              <span className="user-name-title">{displayName}</span>
-              <span className="user-lifestage">
-                {lifeStage.stage} (만 {lifeStage.age}세) · {metrics.expression}
-              </span>
+      {/* 1. 상단 사용자 요약 헤더 (한눈에 단정하게) */}
+      <section className="profile-summary-bar">
+        <div className="profile-left">
+          {metrics.snapshotDataUrl ? (
+            <img
+              src={metrics.snapshotDataUrl}
+              alt="스캔 스냅샷"
+              className="user-avatar-circle"
+            />
+          ) : (
+            <div className="user-avatar-placeholder">
+              <Heart size={16} color="#fbbf24" />
+            </div>
+          )}
+          <div className="profile-names">
+            <div className="user-main-line">
+              <strong>{displayName}</strong>
+              <span className="stage-pill">{lifeStage.stage}</span>
+            </div>
+            <div className="user-sub-line">
+              <span>{metrics.expression}</span>
+              <span className="dot">·</span>
+              <span className="score-text">은혜 지수 {spiritualScore}점</span>
             </div>
           </div>
-
-          <div className="date-chip">
-            <Calendar size={12} />
-            <span>{todayDateText}</span>
-          </div>
         </div>
 
-        {/* 은혜 점수 링 & 메인 테마 타이틀 */}
-        <div className="spiritual-score-box">
-          <div className="score-ring">
-            <span className="score-number">{spiritualScore}</span>
-            <span className="score-label">은혜 지수</span>
-          </div>
-
-          <div className="theme-text-wrap">
-            <span className="theme-badge">오늘의 영적 비전</span>
-            <h2 className="today-main-theme">{todayTheme}</h2>
-            <p className="today-sub-theme">{themeSubtitle}</p>
-          </div>
-        </div>
-
-        {/* 얼굴에서 읽어낸 은혜의 특징 3가지 */}
-        <div className="highlights-pills">
-          {metrics.faceHighlights.map((hl, idx) => (
-            <span key={idx} className="highlight-pill">
-              <Sparkle size={12} color="#fbbf24" />
-              <span>{hl}</span>
-            </span>
-          ))}
+        <div className="date-badge-small">
+          <Calendar size={11} />
+          <span>{todayDateText}</span>
         </div>
       </section>
 
-      {/* 2. 핵심: 나에게 해당하는 오늘의 성경 말씀 카드 */}
-      <section className="verse-sacred-card">
-        <div className="verse-header-bar">
-          <div className="verse-tag">
-            <Bookmark size={15} />
-            <span>오늘의 성경 말씀 · {verse.testament}</span>
+      {/* 2. 핵심: 오늘의 성경 말씀 카드 (가장 돋보이고 집중되는 카드) */}
+      <section className="holy-verse-master-card">
+        <div className="verse-top-row">
+          <div className="verse-badge-group">
+            <span className="verse-testament-pill">{verse.testament}</span>
+            <h2 className="verse-reference-text">{verse.reference}</h2>
           </div>
 
           <button
             type="button"
-            className={`tts-button ${isPlayingTTS ? 'playing' : ''}`}
+            className={`verse-listen-btn ${isPlayingTTS ? 'speaking' : ''}`}
             onClick={handleToggleTTS}
-            title={isPlayingTTS ? '낭독 멈추기' : '말씀 듣기'}
+            title={isPlayingTTS ? '낭독 정지' : '말씀 듣기'}
           >
-            {isPlayingTTS ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            <span>{isPlayingTTS ? '낭독 중지' : '말씀 듣기'}</span>
+            {isPlayingTTS ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            <span>{isPlayingTTS ? '정지' : '말씀 듣기'}</span>
           </button>
         </div>
 
-        <div className="verse-content-box">
-          <div className="verse-ref-badge">{verse.reference}</div>
-          <blockquote className="verse-bible-text">
-            “{verse.text}”
-          </blockquote>
+        <div className="verse-theme-caption">
+          <Sparkle size={13} color="#fbbf24" />
+          <span>{todayTheme}</span>
         </div>
 
-        {/* 말씀 배경 및 은혜의 조명 */}
-        <div className="verse-context-box">
-          <div className="context-label">말씀의 은혜 조명</div>
-          <p className="context-text">{verse.context}</p>
+        <blockquote className="verse-main-quote">
+          “{verse.text}”
+        </blockquote>
+
+        <div className="verse-grace-meaning">
+          <div className="meaning-tag">
+            <Sparkle size={12} color="#fbbf24" />
+            <span>오늘 내게 주시는 은혜의 의미</span>
+          </div>
+          <p>{verse.context}</p>
         </div>
       </section>
 
-      {/* 3. 오늘 해야 할 묵상 내용 카드 */}
-      <section className="meditation-card">
-        <div className="card-section-title">
-          <BookOpen size={18} color="#f59e0b" />
-          <h3>오늘의 마음 진단과 묵상</h3>
+      {/* 3. 오늘 해야 할 묵상 내용 (마음 진단 & 묵상 질문) */}
+      <section className="clean-section-card">
+        <div className="section-title-row">
+          <BookOpen size={16} color="#fbbf24" />
+          <h3>오늘의 묵상과 마음 살피기</h3>
         </div>
 
-        <div className="spiritual-diagnosis-box">
-          <p>{meditation.faceSpiritualDiagnosis}</p>
+        {/* 얼굴 상태와 마음을 비추는 따뜻한 진단 */}
+        <div className="mind-reflection-box">
+          <p className="diagnosis-paragraph">{meditation.faceSpiritualDiagnosis}</p>
+          <p className="reflection-paragraph">{meditation.reflectionText}</p>
         </div>
 
-        <div className="reflection-guide-box">
-          <h4>깊은 묵상의 길</h4>
-          <p>{meditation.reflectionText}</p>
-        </div>
-
-        <div className="reflection-questions-box">
-          <h4>오늘 마음에 품을 3가지 질문</h4>
-          <ul className="questions-list">
-            {meditation.questions.map((q, idx) => (
-              <li key={idx} className="question-item">
-                <span className="q-number">{idx + 1}</span>
-                <span className="q-text">{q}</span>
-              </li>
-            ))}
-          </ul>
+        {/* 묵상 질문 3가지 */}
+        <div className="questions-clean-list">
+          <span className="questions-title">오늘 마음에 품을 묵상 질문</span>
+          {meditation.questions.map((q, idx) => (
+            <div key={idx} className="question-clean-item">
+              <span className="q-badge">{idx + 1}</span>
+              <span className="q-content">{q}</span>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* 4. 오늘 하루 실천해야 할 작은 일 (체크리스트) */}
-      <section className="action-card">
-        <div className="card-section-title">
-          <CheckCircle size={18} color="#34d399" />
+      <section className="clean-section-card">
+        <div className="section-title-row">
+          <CheckCircle size={16} color="#34d399" />
           <h3>오늘 하루 실천해야 할 작은 일</h3>
         </div>
 
-        <div className="core-mission-banner">
-          <span className="mission-label">핵심 미션</span>
-          <p className="mission-text">{action.coreMission}</p>
+        <div className="action-mission-headline">
+          <span className="mission-tag">오늘의 미션</span>
+          <strong>{action.coreMission}</strong>
         </div>
 
-        <div className="action-items-list">
+        <div className="checklist-container">
           {action.items.map((item) => {
             const isDone = !!checkedActions[item.id];
             return (
               <div
                 key={item.id}
-                className={`action-item-card ${isDone ? 'done' : ''}`}
+                className={`check-card ${isDone ? 'checked' : ''}`}
                 onClick={() => handleToggleAction(item.id)}
               >
-                <div className="check-box-icon">
+                <div className="check-indicator">
                   {isDone ? (
-                    <CheckCircle size={20} color="#34d399" />
+                    <CheckCircle size={19} color="#34d399" />
                   ) : (
-                    <Circle size={20} color="#94a3b8" />
+                    <Circle size={19} color="#64748b" />
                   )}
                 </div>
-                <div className="action-text-wrap">
-                  <h4 className="action-title">{item.title}</h4>
-                  <p className="action-desc">{item.description}</p>
+                <div className="check-info">
+                  <h4 className="check-title">{item.title}</h4>
+                  <p className="check-description">{item.description}</p>
                 </div>
               </div>
             );
           })}
         </div>
-        <p className="action-tip">항목을 탭하여 실천 완료를 표시해 보세요.</p>
       </section>
 
-      {/* 5. 오늘의 1분 기도문 카드 */}
-      <section className="prayer-sacred-card">
-        <div className="card-section-title">
-          <Sparkles size={18} color="#fbbf24" />
+      {/* 5. 오늘의 1분 기도문 & 세련된 아멘 버튼 */}
+      <section className="clean-section-card prayer-card-highlight">
+        <div className="section-title-row">
+          <Sparkles size={16} color="#fbbf24" />
           <h3>{prayer.title}</h3>
         </div>
 
-        <div className="prayer-body-box">
-          <p className="prayer-text">{prayer.body}</p>
-          <div className="prayer-confession-pill">
-            <span>오늘의 한 줄 고백: </span>
+        <div className="prayer-clean-body">
+          <p className="prayer-full-text">{prayer.body}</p>
+          <div className="confession-banner">
+            <span>오늘의 고백: </span>
             <strong>"{prayer.oneLineConfession}"</strong>
           </div>
         </div>
 
-        {/* 아멘 버튼 */}
-        <div className="amen-button-wrap">
+        {/* 아멘 버튼 (더 세련되고 와이드하게) */}
+        <div className="amen-btn-area">
           <button
             type="button"
-            className={`amen-btn ${hasAmenClicked ? 'amen-done' : ''}`}
+            className={`amen-glow-button ${hasAmenClicked ? 'active' : ''}`}
             onClick={handleAmenClick}
           >
-            <Sparkles size={18} />
+            <Sparkles size={17} />
             <span>{hasAmenClicked ? '아멘으로 화답하셨습니다 🙏' : '아멘 (말씀을 마음에 품기) 🙏'}</span>
           </button>
         </div>
       </section>
 
-      {/* 6. 기독교인이 오늘 해야 할 일 (찬양, 감사, 영적 습관) */}
-      <section className="daily-christian-card">
-        <div className="card-section-title">
-          <Heart size={18} color="#f472b6" />
-          <h3>오늘 기독교인을 위한 은혜의 선물</h3>
+      {/* 6. 추천 찬양 & 오늘의 영적 습관 (단정한 보너스 카드) */}
+      <section className="praise-habit-compact-card">
+        <div className="praise-part">
+          <div className="part-label">
+            <Music size={13} color="#60a5fa" />
+            <span>오늘의 추천 찬양</span>
+          </div>
+          <p className="praise-main-text">
+            <strong>{christianDaily.recommendedPraise.title}</strong>{' '}
+            <span className="praise-artist">({christianDaily.recommendedPraise.artist})</span>
+          </p>
+          <p className="praise-lyric-quote">“{christianDaily.recommendedPraise.lyricSnippet}”</p>
         </div>
 
-        <div className="christian-tips-grid">
-          {/* 오늘의 추천 찬양 */}
-          <div className="tip-box">
-            <div className="tip-header">
-              <Music size={15} color="#60a5fa" />
-              <strong>오늘의 추천 찬양</strong>
-            </div>
-            <p className="praise-title-artist">
-              {christianDaily.recommendedPraise.title}{' '}
-              <span>({christianDaily.recommendedPraise.artist})</span>
-            </p>
-            <p className="praise-lyric">“{christianDaily.recommendedPraise.lyricSnippet}”</p>
+        <div className="habit-part">
+          <div className="part-label">
+            <Sparkle size={13} color="#fbbf24" />
+            <span>작은 영적 습관 & 성경 읽기</span>
           </div>
-
-          {/* 오늘 챙길 작은 영적 습관 */}
-          <div className="tip-box">
-            <div className="tip-header">
-              <Sparkle size={15} color="#fbbf24" />
-              <strong>오늘의 작은 영적 습관</strong>
-            </div>
-            <p className="tip-desc">{christianDaily.spiritualHabit}</p>
-            <p className="reading-tag">📖 추천 성경 읽기: {christianDaily.readingSuggestion}</p>
-          </div>
+          <p className="habit-text">{christianDaily.spiritualHabit}</p>
+          <p className="reading-tag">📖 추천 본문: {christianDaily.readingSuggestion}</p>
         </div>
       </section>
 
-      {/* 7. 하단 공유 및 액션 버튼들 */}
-      <footer className="result-bottom-actions">
+      {/* 7. 하단 공유 & 네비게이션 버튼 (세련된 버튼 그룹) */}
+      <footer className="result-footer-actions">
         <button
           type="button"
-          className="btn-share-gold"
+          className="btn-share-master"
           onClick={handleCopyShare}
         >
-          {copiedText ? <Check size={18} color="#34d399" /> : <Share2 size={18} />}
+          {copiedText ? <Check size={18} color="#0a1128" /> : <Share2 size={18} />}
           <span>{copiedText ? '말씀과 기도가 복사되었습니다!' : '오늘의 말씀 & 기도 복사하여 나누기'}</span>
         </button>
 
-        <div className="result-nav-buttons">
-          <button type="button" className="btn-rescan" onClick={onRescan}>
-            <RotateCcw size={16} />
+        <div className="sub-nav-row">
+          <button type="button" className="sub-btn" onClick={onRescan}>
+            <RotateCcw size={15} />
             <span>다시 스캔하기</span>
           </button>
 
-          <button type="button" className="btn-home" onClick={onGoHome}>
-            <Home size={16} />
+          <button type="button" className="sub-btn" onClick={onGoHome}>
+            <Home size={15} />
             <span>처음으로</span>
           </button>
         </div>
