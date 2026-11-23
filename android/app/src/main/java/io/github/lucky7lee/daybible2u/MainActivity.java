@@ -54,13 +54,11 @@ public class MainActivity extends Activity {
     private static final long INTERSTITIAL_COOLDOWN_MS = 60_000L; // 전면 광고 최소 60초 간격
 
     // =========================================================================
-    // Google AdMob Ad Unit IDs
-    // 현재: Google 공식 테스트 광고 ID (비공개 테스트 중 자가 클릭 정지 방지용)
-    // 정식 출시 전 AdMob 콘솔에서 데이바이블2U 배너/전면/보상형 광고 단위 ID 발급 후 교체하세요.
+    // Google AdMob Production Ad Unit IDs (DayBible2U)
     // =========================================================================
-    private static final String ADMOB_BANNER_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
-    private static final String ADMOB_INTERSTITIAL_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
-    private static final String ADMOB_REWARDED_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
+    private static final String ADMOB_BANNER_UNIT_ID = "ca-app-pub-6785485516818041/2498517199";
+    private static final String ADMOB_INTERSTITIAL_UNIT_ID = "ca-app-pub-6785485516818041/3620027176";
+    private static final String ADMOB_REWARDED_UNIT_ID = "ca-app-pub-6785485516818041/6030568093";
 
     private WebView webView;
     private FrameLayout bannerContainer;

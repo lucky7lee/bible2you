@@ -20,14 +20,10 @@
         android:usesCleartextTraffic="false"
         android:theme="@style/Theme.DayBible2U">
 
-        <!--
-            Google AdMob App ID
-            현재: Google 공식 테스트 App ID (비공개 테스트 안전 모드)
-            정식 출시 전 AdMob 콘솔에서 데이바이블2U 앱 등록 후 발급받은 정식 App ID로 교체하세요.
-        -->
+        <!-- Google AdMob Production App ID (DayBible2U) -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-6785485516818041~6820905582" />
 
         <activity
             android:name=".MainActivity"
