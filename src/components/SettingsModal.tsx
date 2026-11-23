@@ -118,8 +118,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               <div className="info-box">
-                <Info size={14} />
-                <span>{t.apiKeyNote}</span>
+                <Info size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <span>{t.apiKeyNote}</span>
+                  <a
+                    href="https://aistudio.google.com/apikey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="api-key-help-link"
+                  >
+                    {t.getApiKeyLink}
+                  </a>
+                </div>
               </div>
             </div>
           )}

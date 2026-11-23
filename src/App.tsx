@@ -92,6 +92,11 @@ export default function App() {
         : '데이바이블2U - 오늘의 맞춤 성경 말씀 & 묵상·기도';
   }, [lang]);
 
+  // 화면 전환 시 항상 최상단으로 이동
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
+
   const handleSelectLanguage = (nextLang: Language) => {
     if (nextLang === lang) return;
     setLang(nextLang);

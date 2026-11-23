@@ -273,21 +273,30 @@ html, body {
 .text-input,
 .select-input {
   width: 100%;
-  height: 40px;
-  background: rgba(10, 17, 40, 0.85);
+  height: 42px;
+  background: rgba(10, 17, 40, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
   color: #ffffff;
-  padding: 0 10px;
+  padding: 0 11px;
   font-size: 13.5px;
   outline: none;
   transition: all 0.2s ease;
 }
 
+.select-input option {
+  background-color: #0f1938;
+  color: #f8fafc;
+}
+
 .text-input:focus,
 .select-input:focus {
   border-color: var(--gold-primary);
-  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+  box-shadow: 0 0 0 2.5px rgba(251, 191, 36, 0.22);
+}
+
+.spin-icon {
+  animation: spin 0.9s linear infinite;
 }
 
 .birth-select-grid {
@@ -795,9 +804,23 @@ html, body {
 .grace-score-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.grace-mini-bar {
+  width: 44px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.grace-mini-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, #d97706, #fef08a);
 }
 
 .grace-score-pill strong {
@@ -806,27 +829,66 @@ html, body {
   font-family: var(--font-cinzel), var(--font-sans);
 }
 
+/* 한눈에 보는 6단계 빠른 목차 네비게이션 */
+.quick-nav-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+}
+
+.quick-nav-pill {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 48, 0.78);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 2px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+  transition: all 0.18s ease;
+}
+
+.quick-nav-pill:hover {
+  border-color: var(--gold-border);
+  color: var(--gold-light);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.quick-nav-pill.gold {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.14);
+  color: var(--gold-light);
+}
+
 /* =========================================================================
    1~6번 차례차례 동일한 통일 카드 포맷 (Ordered Section Card)
    ========================================================================= */
 .ordered-section-card {
+  scroll-margin-top: 68px;
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
-  padding: 16px 16px;
+  padding: 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  gap: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transition: all 0.2s ease;
+  animation: fadeSlideUp 0.35s ease both;
 }
 
 /* 1번 오늘의 말씀만 황금 테두리로 강렬하게 강조 */
 .verse-highlight-card {
-  background: linear-gradient(155deg, rgba(26, 42, 90, 0.96) 0%, rgba(13, 20, 48, 0.96) 100%);
+  background: linear-gradient(155deg, rgba(28, 46, 98, 0.96) 0%, rgba(13, 20, 48, 0.97) 100%);
   border: 2px solid var(--gold-primary);
-  box-shadow: 0 10px 32px rgba(251, 191, 36, 0.22), 0 0 20px rgba(251, 191, 36, 0.12);
-  padding: 18px 18px 20px;
+  box-shadow:
+    0 12px 34px rgba(251, 191, 36, 0.2),
+    0 0 22px rgba(251, 191, 36, 0.12),
+    inset 0 1px 0 rgba(254, 240, 138, 0.25);
+  padding: 20px 18px 22px;
 }
 
 /* 통일된 카드 헤더 바 */
@@ -834,8 +896,26 @@ html, body {
   display: flex;
   align-items: center;
   gap: 9px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 9px;
+}
+
+.done-count-pill {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.done-count-pill.all-done {
+  background: rgba(52, 211, 153, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(52, 211, 153, 0.45);
 }
 
 .section-number-badge {
@@ -975,42 +1055,42 @@ html, body {
    2. 묵상 카드 세부 스타일
    ========================================================================= */
 .diagnosis-box {
-  background: rgba(251, 191, 36, 0.06);
-  border: 1px solid rgba(251, 191, 36, 0.16);
+  background: rgba(251, 191, 36, 0.07);
+  border: 1px solid rgba(251, 191, 36, 0.2);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
-  font-size: 13px;
+  padding: 12px 14px;
+  font-size: 13.5px;
   color: var(--gold-light);
-  line-height: 1.55;
+  line-height: 1.65;
 }
 
 .reflection-text-box h4,
 .reflection-questions-wrap h4 {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .reflection-text-box p {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--text-main);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .questions-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .question-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  font-size: 12.5px;
+  gap: 9px;
+  font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
 .q-badge {
@@ -1432,6 +1512,30 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  line-height: 1.5;
+}
+
+.api-key-help-link {
+  color: var(--gold-light);
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 11.5px;
+}
+
+.api-key-help-link:hover {
+  color: var(--gold-primary);
 }
 
 .modal-actions {

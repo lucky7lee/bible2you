@@ -8,6 +8,7 @@ import {
   User,
   Heart,
   Sparkle,
+  Loader2,
 } from 'lucide-react';
 import { ChristianTitle, Language, UserProfile } from '../types/bible';
 import { getTodayDateText } from '../lib/bibleEngine';
@@ -312,8 +313,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
               onClick={handleUploadClick}
               disabled={isPhotoAnalyzing}
             >
-              <ImagePlus size={15} />
-              <span>{t.uploadBtn}</span>
+              {isPhotoAnalyzing ? (
+                <Loader2 size={15} className="spin-icon" />
+              ) : (
+                <ImagePlus size={15} color="#93c5fd" />
+              )}
+              <span>{isPhotoAnalyzing ? t.uploadingBtn : t.uploadBtn}</span>
             </button>
 
             <button
@@ -322,7 +327,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               onClick={handleSkipScanClick}
               disabled={isPhotoAnalyzing}
             >
-              <Sparkles size={15} />
+              <Sparkles size={15} color="#fbbf24" />
               <span>{t.skipScanBtn}</span>
             </button>
           </div>

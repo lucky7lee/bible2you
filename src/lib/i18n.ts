@@ -105,12 +105,22 @@ export const UI_TEXT = {
     scanBtnMain: '오늘의 얼굴 스캔하기',
     scanBtnSub: '5초 카메라 스캔으로 은혜의 말씀 찾기',
     uploadBtn: '사진 파일 업로드',
+    uploadingBtn: '사진 분석 중...',
     skipScanBtn: '스캔없이 진행',
     privacyNote: '안심하세요: 얼굴 영상 및 사진은 서버로 전송되지 않습니다.',
     tagWord: '맞춤 성경 말씀',
     tagMeditation: '깊은 묵상',
     tagAction: '작은 실천',
     tagPrayer: '1분 기도',
+
+    // Quick Nav Pills
+    nav1: '1.말씀',
+    nav2: '2.묵상',
+    nav3: '3.실천',
+    nav4: '4.기도',
+    nav5: '5.찬양',
+    nav6: '6.습관',
+    doneCount: (done: number, total: number) => `${done}/${total} 완료`,
 
     // CameraScanner
     backBtn: '뒤로',
@@ -182,6 +192,7 @@ export const UI_TEXT = {
     engineGeminiSub: '실시간 심층 기도문 & 묵상 생성',
     modelLabel: '사용 모델',
     apiKeyNote: 'API 키는 사용자 기기 내부(Local Storage)에만 안전하게 보관됩니다.',
+    getApiKeyLink: 'Google AI Studio에서 무료 키 발급받기 ↗',
     cancelBtn: '취소',
     saveBtn: '설정 저장',
     savedBtn: '저장 완료!',
@@ -215,12 +226,22 @@ export const UI_TEXT = {
     scanBtnMain: 'Scan Face Today',
     scanBtnSub: '5s camera scan for today’s verse',
     uploadBtn: 'Upload Photo',
+    uploadingBtn: 'Analyzing...',
     skipScanBtn: 'Skip Scan',
     privacyNote: '100% Private: Photos & video never leave your device.',
     tagWord: 'Daily Word',
     tagMeditation: 'Meditation',
     tagAction: 'Action',
     tagPrayer: '1-Min Prayer',
+
+    // Quick Nav Pills
+    nav1: '1.Word',
+    nav2: '2.Reflect',
+    nav3: '3.Action',
+    nav4: '4.Prayer',
+    nav5: '5.Praise',
+    nav6: '6.Habit',
+    doneCount: (done: number, total: number) => `${done}/${total} Done`,
 
     // CameraScanner
     backBtn: 'Back',
@@ -292,6 +313,7 @@ export const UI_TEXT = {
     engineGeminiSub: 'Live personalized prayer & meditation',
     modelLabel: 'Model',
     apiKeyNote: 'Your API key is stored safely only in your device browser.',
+    getApiKeyLink: 'Get a free API key at Google AI Studio ↗',
     cancelBtn: 'Cancel',
     saveBtn: 'Save',
     savedBtn: 'Saved!',

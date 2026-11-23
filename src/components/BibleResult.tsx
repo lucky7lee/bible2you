@@ -151,6 +151,16 @@ ${prayer.body}
     }
   };
 
+  const completedCount = action.items.filter((it) => checkedActions[it.id]).length;
+  const totalActions = action.items.length;
+
+  const scrollToSection = (sectionId: string) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="result-container">
       {/* 0. 상단 프로필 & 요약 정보 (안정적인 2줄 카드) */}
@@ -183,7 +193,7 @@ ${prayer.body}
           </div>
         </div>
 
-        {/* 2번째 줄: 오늘의 얼굴 상태(또는 기본 정보 묵상) / 은혜 지수 */}
+        {/* 2번째 줄: 오늘의 얼굴 상태(또는 기본 정보 묵상) / 은혜 지수 게이지 */}
         <div className="profile-row-secondary">
           <div className="face-expression-pill">
             <Sparkle size={12} color="#fbbf24" />
@@ -192,6 +202,12 @@ ${prayer.body}
 
           <div className="grace-score-pill">
             <span>{t.graceScoreLabel}</span>
+            <div className="grace-mini-bar" aria-hidden="true">
+              <div
+                className="grace-mini-fill"
+                style={{ width: `${Math.min(100, Math.max(0, spiritualScore))}%` }}
+              />
+            </div>
             <strong>
               {spiritualScore}
               {t.scoreUnit}
@@ -200,10 +216,32 @@ ${prayer.body}
         </div>
       </section>
 
+      {/* 한눈에 보는 6단계 빠른 목차 바 */}
+      <nav className="quick-nav-strip" aria-label="Quick navigation">
+        <button type="button" className="quick-nav-pill gold" onClick={() => scrollToSection('sec-1')}>
+          {t.nav1}
+        </button>
+        <button type="button" className="quick-nav-pill" onClick={() => scrollToSection('sec-2')}>
+          {t.nav2}
+        </button>
+        <button type="button" className="quick-nav-pill" onClick={() => scrollToSection('sec-3')}>
+          {t.nav3}
+        </button>
+        <button type="button" className="quick-nav-pill" onClick={() => scrollToSection('sec-4')}>
+          {t.nav4}
+        </button>
+        <button type="button" className="quick-nav-pill" onClick={() => scrollToSection('sec-5')}>
+          {t.nav5}
+        </button>
+        <button type="button" className="quick-nav-pill" onClick={() => scrollToSection('sec-6')}>
+          {t.nav6}
+        </button>
+      </nav>
+
       {/* =========================================================================
           1. 나에게 들려주는 오늘의 말씀 (골드 테두리 강조, 1.5배 큰 글씨)
           ========================================================================= */}
-      <section className="ordered-section-card verse-highlight-card">
+      <section id="sec-1" className="ordered-section-card verse-highlight-card">
         <div className="section-header-bar">
           <div className="section-number-badge gold">1</div>
           <h3 className="section-title-text gold">{t.sec1Title}</h3>
@@ -235,7 +273,7 @@ ${prayer.body}
       {/* =========================================================================
           2. 오늘의 묵상과 말씀 살피기
           ========================================================================= */}
-      <section className="ordered-section-card">
+      <section id="sec-2" className="ordered-section-card">
         <div className="section-header-bar">
           <div className="section-number-badge">2</div>
           <h3 className="section-title-text">{t.sec2Title}</h3>
@@ -268,10 +306,13 @@ ${prayer.body}
       {/* =========================================================================
           3. 오늘 하루 실천해야 할 작은 일
           ========================================================================= */}
-      <section className="ordered-section-card">
+      <section id="sec-3" className="ordered-section-card">
         <div className="section-header-bar">
           <div className="section-number-badge green">3</div>
           <h3 className="section-title-text">{t.sec3Title}</h3>
+          <span className={`done-count-pill ${completedCount === totalActions ? 'all-done' : ''}`}>
+            {t.doneCount(completedCount, totalActions)}
+          </span>
         </div>
 
         <div className="section-card-content">
@@ -311,7 +352,7 @@ ${prayer.body}
       {/* =========================================================================
           4. 오늘의 1분 기도 (세련된 아멘 버튼 포함)
           ========================================================================= */}
-      <section className="ordered-section-card prayer-highlight-card">
+      <section id="sec-4" className="ordered-section-card prayer-highlight-card">
         <div className="section-header-bar">
           <div className="section-number-badge gold">4</div>
           <h3 className="section-title-text gold">{prayer.title}</h3>
@@ -342,7 +383,7 @@ ${prayer.body}
       {/* =========================================================================
           5. 오늘의 추천 찬양
           ========================================================================= */}
-      <section className="ordered-section-card">
+      <section id="sec-5" className="ordered-section-card">
         <div className="section-header-bar">
           <div className="section-number-badge blue">5</div>
           <h3 className="section-title-text">{t.sec5Title}</h3>
@@ -363,7 +404,7 @@ ${prayer.body}
       {/* =========================================================================
           6. 작은 영적 습관 & 성경 읽기
           ========================================================================= */}
-      <section className="ordered-section-card">
+      <section id="sec-6" className="ordered-section-card">
         <div className="section-header-bar">
           <div className="section-number-badge olive">6</div>
           <h3 className="section-title-text">{t.sec6Title}</h3>
