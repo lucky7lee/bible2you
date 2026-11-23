@@ -23,3 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 *.tsbuildinfo
+
+# Android build outputs & signing keystore
+android/.gradle/
+android/app/build/
+android/app/src/main/assets/
+android/app/release-key.jks
+dist_output/

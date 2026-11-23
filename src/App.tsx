@@ -410,7 +410,15 @@ export default function App() {
           initialCheckedActions={todayRecord?.checkedActions}
           initialAmenClicked={todayRecord?.hasAmenClicked}
           onProgressChange={handleProgressChange}
-          onRescan={() => setStep('scanning')}
+          onRescan={() => {
+            try {
+              const bridge = (window as unknown as { DayBibleAndroid?: { showInterstitial?: () => void } }).DayBibleAndroid;
+              bridge?.showInterstitial?.();
+            } catch {
+              // ignore on web
+            }
+            setStep('scanning');
+          }}
           onGoHome={() => setStep('landing')}
         />
       )}

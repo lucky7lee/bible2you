@@ -1,0 +1,53 @@
+plugins {
+    id 'com.android.application'
+}
+
+def verCode = project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 1
+def verName = project.hasProperty('versionName') ? project.property('versionName').toString() : "1.0.${verCode}"
+
+android {
+    namespace 'io.github.lucky7lee.daybible2u'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "io.github.lucky7lee.daybible2u"
+        minSdk 24
+        targetSdk 36
+        versionCode verCode
+        versionName verName
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("release-key.jks")
+            storePassword System.getenv("KEYSTORE_PASSWORD") ?: "daybible2u2026"
+            keyAlias System.getenv("KEY_ALIAS") ?: "daybible2u"
+            keyPassword System.getenv("KEY_PASSWORD") ?: "daybible2u2026"
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-ads:23.3.0'
+}
