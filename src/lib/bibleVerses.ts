@@ -1,4 +1,4 @@
-import { BibleVerse, DailyActionItem, RecommendedPraise } from '../types/bible';
+import { BibleVerse, DailyActionItem, Language, LifeStageInfo, RecommendedPraise } from '../types/bible';
 
 export interface VerseThemeData {
   verse: BibleVerse;
@@ -690,13 +690,11 @@ export const VERSE_DATABASE: Record<string, VerseThemeData[]> = {
   ],
 };
 
-// 생애주기별 맞춤 축복 메시지 계산
-export function getLifeStageInfo(birthDateStr: string): {
-  stage: '어린이·청소년' | '청년' | '장년' | '중년' | '시니어';
-  age: number;
-  stageMessage: string;
-  prayerFocus: string;
-} {
+// 생애주기별 맞춤 축복 메시지 계산 (한글 / 영어 지원)
+export function getLifeStageInfo(
+  birthDateStr: string,
+  lang: Language = 'ko'
+): LifeStageInfo {
   const now = new Date();
   let age = 30; // 기본값
   if (birthDateStr) {
@@ -707,6 +705,50 @@ export function getLifeStageInfo(birthDateStr: string): {
       if (m < 0 || (m === 0 && now.getDate() < b.getDate())) {
         age--;
       }
+    }
+  }
+
+  if (lang === 'en') {
+    if (age <= 19) {
+      return {
+        stage: 'Youth',
+        age,
+        stageMessage:
+          'You are in a precious season of dreams and growth. May you grow in wisdom and favor with God and people.',
+        prayerFocus: 'Wisdom in studies, strong identity in Christ, godly friendships',
+      };
+    } else if (age <= 35) {
+      return {
+        stage: 'Young Adult',
+        age,
+        stageMessage:
+          'You are setting sail with faith and energy. May God guide your calling, relationships, and bold vision.',
+        prayerFocus: 'Career direction, godly relationships, bold faith and purpose',
+      };
+    } else if (age <= 50) {
+      return {
+        stage: 'Adult',
+        age,
+        stageMessage:
+          'You stand as a steady pillar of faith for family and work. May the Lord bless the work of your hands.',
+        prayerFocus: 'Harmony at home, integrity at work, passing faith to the next generation',
+      };
+    } else if (age <= 65) {
+      return {
+        stage: 'Midlife',
+        age,
+        stageMessage:
+          'You are in a mature season of wisdom and fruitfulness. May you be a channel of grace and encouragement.',
+        prayerFocus: 'Strength in body and spirit, wise leadership, blessing those around you',
+      };
+    } else {
+      return {
+        stage: 'Senior',
+        age,
+        stageMessage:
+          'Your life is a crown of faithfulness and living testimony. May you enjoy renewed strength and overflowing gratitude.',
+        prayerFocus: 'Lifelong gratitude, eternal hope, blessing and health for generations',
+      };
     }
   }
 

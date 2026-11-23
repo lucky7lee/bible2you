@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Key, Cpu, Info, Check } from 'lucide-react';
-import { AppSettings } from '../types/bible';
+import { AppSettings, Language } from '../types/bible';
+import { UI_TEXT } from '../lib/i18n';
 
 interface SettingsModalProps {
+  lang: Language;
   settings: AppSettings;
   onSave: (next: AppSettings) => void;
   onClose: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
+  lang,
   settings,
   onSave,
   onClose,
 }) => {
+  const t = UI_TEXT[lang];
   const [engine, setEngine] = useState<'local' | 'gemini'>(settings.engine);
   const [apiKey, setApiKey] = useState(settings.geminiApiKey);
   const [model, setModel] = useState(settings.geminiModel);
@@ -37,7 +41,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="modal-header">
           <div className="modal-title-wrap">
             <Sparkles size={18} color="#fbbf24" />
-            <h3>AI 영성 분석 설정</h3>
+            <h3>{t.settingsHeader}</h3>
           </div>
           <button type="button" className="modal-close-btn" onClick={onClose}>
             <X size={18} />
@@ -49,7 +53,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="form-group">
             <label className="form-label">
               <Cpu size={14} />
-              <span>생성 엔진 선택</span>
+              <span>{t.engineLabel}</span>
             </label>
             <div className="engine-options-row">
               <label className={`engine-option-chip ${engine === 'local' ? 'selected' : ''}`}>
@@ -60,8 +64,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={engine === 'local'}
                   onChange={() => setEngine('local')}
                 />
-                <span className="chip-title">로컬 정밀 엔진 (권장)</span>
-                <span className="chip-sub">API 키 없이 100% 무료 즉시 실행</span>
+                <span className="chip-title">{t.engineLocalTitle}</span>
+                <span className="chip-sub">{t.engineLocalSub}</span>
               </label>
 
               <label className={`engine-option-chip ${engine === 'gemini' ? 'selected' : ''}`}>
@@ -72,8 +76,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={engine === 'gemini'}
                   onChange={() => setEngine('gemini')}
                 />
-                <span className="chip-title">Google Gemini API</span>
-                <span className="chip-sub">실시간 심층 기도문 & 묵상 생성</span>
+                <span className="chip-title">{t.engineGeminiTitle}</span>
+                <span className="chip-sub">{t.engineGeminiSub}</span>
               </label>
             </div>
           </div>
@@ -99,7 +103,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <div className="form-group">
                 <label className="form-label" htmlFor="gemini-model">
-                  <span>사용 모델</span>
+                  <span>{t.modelLabel}</span>
                 </label>
                 <select
                   id="gemini-model"
@@ -107,28 +111,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                 >
-                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (빠르고 정확)</option>
-                  <option value="gemini-2.5-pro">Gemini 2.5 Pro (깊은 통찰)</option>
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                  <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
                   <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                 </select>
               </div>
 
               <div className="info-box">
                 <Info size={14} />
-                <span>
-                  API 키는 사용자 기기 내부(Local Storage)에만 암호화되어 안전하게 보관됩니다.
-                </span>
+                <span>{t.apiKeyNote}</span>
               </div>
             </div>
           )}
 
           <div className="modal-actions">
             <button type="button" className="btn-modal-cancel" onClick={onClose}>
-              취소
+              {t.cancelBtn}
             </button>
             <button type="submit" className="btn-modal-save">
               {savedSuccess ? <Check size={16} /> : null}
-              <span>{savedSuccess ? '저장 완료!' : '설정 저장'}</span>
+              <span>{savedSuccess ? t.savedBtn : t.saveBtn}</span>
             </button>
           </div>
         </form>

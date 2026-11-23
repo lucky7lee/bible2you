@@ -1,10 +1,22 @@
+export type Language = 'ko' | 'en';
+
+export type ExpressionKey =
+  | 'peaceful'
+  | 'joyful'
+  | 'calm'
+  | 'focused'
+  | 'tired'
+  | 'courageous'
+  | 'skipped';
+
 export type ExpressionType =
   | '온화하고 평안한 미소'
   | '밝고 기쁨 넘치는 표정'
   | '차분하고 깊은 묵상 표정'
   | '진지하고 또렷한 집중'
   | '살짝 지치고 쉼이 필요한 상태'
-  | '새로운 용기를 품은 결단';
+  | '새로운 용기를 품은 결단'
+  | '기본 정보 맞춤 묵상';
 
 export interface FaceMetrics {
   smileScore: number; // 미소 & 기쁨 지수 (0~100)
@@ -14,12 +26,14 @@ export interface FaceMetrics {
   fatigueScore: number; // 피로도 / 안식 필요도 (0~100)
 
   expression: ExpressionType;
+  expressionKey?: ExpressionKey;
   faceHighlights: string[]; // 얼굴에서 읽어낸 은혜의 특징 3가지
   dominantMood: 'peace' | 'joy' | 'rest' | 'courage' | 'wisdom' | 'love';
 
   capturedAt: string;
   snapshotDataUrl?: string;
   isDemo?: boolean;
+  isSkippedScan?: boolean; // 스캔없이 기본 정보만으로 진행한 경우
 }
 
 export type ChristianTitle =
@@ -39,15 +53,15 @@ export interface UserProfile {
 }
 
 export interface LifeStageInfo {
-  stage: '어린이·청소년' | '청년' | '장년' | '중년' | '시니어';
+  stage: string;
   age: number;
   stageMessage: string;
   prayerFocus: string;
 }
 
 export interface BibleVerse {
-  reference: string; // 예: "빌립보서 4장 6-7절"
-  testament: '구약' | '신약';
+  reference: string; // 예: "빌립보서 4장 6-7절" / "Philippians 4:6-7"
+  testament: string; // '구약' | '신약' | 'OT' | 'NT'
   book: string;
   chapter: number;
   verseRange: string;
@@ -71,13 +85,14 @@ export interface RecommendedPraise {
 }
 
 export interface BibleResultData {
+  lang: Language;
   user: UserProfile;
   lifeStage: LifeStageInfo;
   todayDateText: string;
   todayTheme: string;
   themeSubtitle: string;
   spiritualScore: number; // 오늘의 은혜 지수 (0~100)
-  
+
   // 1. 오늘의 성경 말씀
   verse: BibleVerse;
 

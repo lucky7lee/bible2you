@@ -4,7 +4,8 @@ import {
   NormalizedLandmark,
   Category,
 } from '@mediapipe/tasks-vision';
-import { ExpressionType, FaceMetrics } from '../types/bible';
+import { ExpressionKey, ExpressionType, FaceMetrics, Language } from '../types/bible';
+import { UI_TEXT } from './i18n';
 
 const WASM_URL =
   'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm';
@@ -69,13 +70,17 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }): number 
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-// 얼굴 정면 여부 검사 (오늘 관상 운세 앱과 100% 동일)
-export function checkIsFaceFrontal(landmarks: NormalizedLandmark[]): {
+// 얼굴 정면 여부 검사 (다국어 지원)
+export function checkIsFaceFrontal(
+  landmarks: NormalizedLandmark[],
+  lang: Language = 'ko'
+): {
   isFrontal: boolean;
   message: string;
 } {
+  const t = UI_TEXT[lang];
   if (!landmarks || landmarks.length < 468) {
-    return { isFrontal: false, message: '화면 중앙 가이드 안에 얼굴을 맞춰주세요' };
+    return { isFrontal: false, message: t.camGuideCenter };
   }
 
   const leftCheek = landmarks[234];
@@ -88,10 +93,10 @@ export function checkIsFaceFrontal(landmarks: NormalizedLandmark[]): {
   const faceHeight = Math.abs(chin.y - topForehead.y);
 
   if (faceWidth < 0.22 || faceHeight < 0.25) {
-    return { isFrontal: false, message: '카메라에 조금 더 가까이 다가와 주세요' };
+    return { isFrontal: false, message: t.camGuideCloser };
   }
   if (faceWidth > 0.85) {
-    return { isFrontal: false, message: '카메라에서 살짝만 뒤로 물러나 주세요' };
+    return { isFrontal: false, message: t.camGuideBack };
   }
 
   // 좌우 회전 (Yaw)
@@ -100,20 +105,20 @@ export function checkIsFaceFrontal(landmarks: NormalizedLandmark[]): {
   const yawRatio = dLeft / (dRight || 0.001);
 
   if (yawRatio < 0.58 || yawRatio > 1.72) {
-    return { isFrontal: false, message: '고개를 정면으로 바르게 돌려주세요' };
+    return { isFrontal: false, message: t.camGuideTurn };
   }
 
   // 상하 기울기 (Pitch)
   const midY = (topForehead.y + chin.y) / 2;
   const pitchDiff = noseTip.y - midY;
   if (pitchDiff < -0.12) {
-    return { isFrontal: false, message: '턱을 살짝 내리고 정면을 바라봐 주세요' };
+    return { isFrontal: false, message: t.camGuideDown };
   }
   if (pitchDiff > 0.14) {
-    return { isFrontal: false, message: '고개를 살짝 들어 정면을 바라봐 주세요' };
+    return { isFrontal: false, message: t.camGuideUp };
   }
 
-  return { isFrontal: true, message: '정면 확인! 주님의 은혜를 스캔 중입니다...' };
+  return { isFrontal: true, message: t.camFrontalScan };
 }
 
 // 랜드마크 및 블렌드셰이프로부터 은혜의 척도 추출
@@ -193,25 +198,32 @@ export function extractFaceMetrics(
 
   // 표정 및 지배적 상태 도출
   let expression: ExpressionType = '온화하고 평안한 미소';
+  let expressionKey: ExpressionKey = 'peaceful';
   let dominantMood: FaceMetrics['dominantMood'] = 'peace';
 
   if (fatigueScore >= 65) {
     expression = '살짝 지치고 쉼이 필요한 상태';
+    expressionKey = 'tired';
     dominantMood = 'rest';
   } else if (smileScore >= 68) {
     expression = '밝고 기쁨 넘치는 표정';
+    expressionKey = 'joyful';
     dominantMood = 'joy';
   } else if (vitalityScore >= 78 && calmScore < 60) {
     expression = '새로운 용기를 품은 결단';
+    expressionKey = 'courageous';
     dominantMood = 'courage';
   } else if (browDown > 0.25 || calmScore >= 75) {
     expression = '진지하고 또렷한 집중';
+    expressionKey = 'focused';
     dominantMood = 'wisdom';
   } else if (smileScore >= 45) {
     expression = '온화하고 평안한 미소';
+    expressionKey = 'peaceful';
     dominantMood = 'love';
   } else {
     expression = '차분하고 깊은 묵상 표정';
+    expressionKey = 'calm';
     dominantMood = 'peace';
   }
 
@@ -245,6 +257,7 @@ export function extractFaceMetrics(
     calmScore,
     fatigueScore,
     expression,
+    expressionKey,
     faceHighlights,
     dominantMood,
     capturedAt: new Date().toISOString(),
@@ -446,5 +459,46 @@ export function createDemoFaceMetrics(): FaceMetrics {
     dominantMood: picked.dominantMood,
     capturedAt: new Date().toISOString(),
     isDemo: true,
+  };
+}
+
+// 스캔없이 진행: 입력한 이름·생년월일·오늘 날짜만을 바탕으로 결정론적 분석 메트릭 생성
+export function createProfileOnlyMetrics(name: string, birthDate: string): FaceMetrics {
+  const todayYMD = new Date().toISOString().slice(0, 10);
+  const seedStr = `${name.trim()}_${birthDate.trim()}_${todayYMD}`;
+  let hash = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    hash = (hash << 5) - hash + seedStr.charCodeAt(i);
+    hash |= 0;
+  }
+  const absHash = Math.abs(hash);
+
+  const moods: Array<FaceMetrics['dominantMood']> = [
+    'peace',
+    'joy',
+    'rest',
+    'courage',
+    'wisdom',
+    'love',
+  ];
+  const dominantMood = moods[absHash % moods.length];
+
+  // 기본 정보 기반의 안정적인 은혜 점수 산출용 지표
+  const smileScore = 72 + (absHash % 20);
+  const vitalityScore = 75 + ((absHash >> 3) % 18);
+  const calmScore = 76 + ((absHash >> 5) % 18);
+
+  return {
+    smileScore,
+    vitalityScore,
+    symmetryScore: 88,
+    calmScore,
+    fatigueScore: dominantMood === 'rest' ? 68 : 25,
+    expression: '기본 정보 맞춤 묵상',
+    expressionKey: 'skipped',
+    faceHighlights: [],
+    dominantMood,
+    capturedAt: new Date().toISOString(),
+    isSkippedScan: true,
   };
 }

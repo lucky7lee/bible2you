@@ -104,6 +104,51 @@ html, body {
   font-size: 15.5px;
   letter-spacing: -0.3px;
   color: #ffffff;
+  white-space: nowrap;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 한글 / ENG 언어 선택 세그먼트 버튼 */
+.lang-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 2px;
+}
+
+.lang-toggle-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  line-height: 1.1;
+}
+
+.lang-toggle-btn:hover {
+  color: var(--text-main);
+}
+
+.lang-toggle-btn.active {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  color: #0a1128;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.35);
 }
 
 .btn-icon-setting {
@@ -117,6 +162,7 @@ html, body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .btn-icon-setting:hover {
@@ -316,6 +362,7 @@ html, body {
 .secondary-action-button,
 .demo-action-button {
   height: 38px;
+  padding: 0 8px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -325,7 +372,8 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -350,8 +398,9 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11.5px;
   color: var(--text-muted);
   padding: 4px 0;
 }
@@ -359,7 +408,8 @@ html, body {
 .service-tag-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  white-space: nowrap;
 }
 
 .service-tag-divider {

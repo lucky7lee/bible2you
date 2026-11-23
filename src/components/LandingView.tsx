@@ -9,15 +9,17 @@ import {
   Heart,
   Sparkle,
 } from 'lucide-react';
-import { ChristianTitle, UserProfile } from '../types/bible';
+import { ChristianTitle, Language, UserProfile } from '../types/bible';
 import { getTodayDateText } from '../lib/bibleEngine';
+import { TITLE_LABELS, UI_TEXT } from '../lib/i18n';
 
 interface LandingViewProps {
+  lang: Language;
   user: UserProfile;
   onChangeUser: (next: UserProfile) => void;
   onStartCamera: () => void;
   onUploadPhoto: (file: File) => void;
-  onTryDemo: () => void;
+  onSkipScan: () => void;
   isPhotoAnalyzing: boolean;
   photoError: string | null;
 }
@@ -38,20 +40,26 @@ const CHRISTIAN_TITLES: ChristianTitle[] = [
 ];
 
 export const LandingView: React.FC<LandingViewProps> = ({
+  lang,
   user,
   onChangeUser,
   onStartCamera,
   onUploadPhoto,
-  onTryDemo,
+  onSkipScan,
   isPhotoAnalyzing,
   photoError,
 }) => {
+  const t = UI_TEXT[lang];
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedDay, setSelectedDay] = useState('');
+
+  useEffect(() => {
+    setValidationError(null);
+  }, [lang]);
 
   useEffect(() => {
     if (user.birthDate) {
@@ -104,11 +112,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
   const validateInput = (): boolean => {
     if (!user.name || !user.name.trim()) {
-      setValidationError('성명(이름)을 입력해 주세요.');
+      setValidationError(t.errNameRequired);
       return false;
     }
     if (!selectedYear || !selectedMonth || !selectedDay) {
-      setValidationError('생년월일을 모두 선택해 주세요.');
+      setValidationError(t.errBirthRequired);
       return false;
     }
     return true;
@@ -124,6 +132,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
     fileInputRef.current?.click();
   };
 
+  const handleSkipScanClick = () => {
+    if (!validateInput()) return;
+    onSkipScan();
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -132,11 +145,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
     }
   };
 
-  const todayText = getTodayDateText();
+  const todayText = getTodayDateText(lang);
 
   return (
     <div className="landing-container">
-      {/* 1. 상단 성스러운 헤더 엠블럼 (컴팩트 & 세련) */}
+      {/* 1. 상단 성스러운 헤더 엠블럼 */}
       <header className="sacred-header">
         <div className="cross-badge-compact">
           <svg className="holy-cross-icon" viewBox="0 0 32 32" fill="none">
@@ -163,30 +176,32 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </div>
 
         <h1 className="landing-title">
-          오늘 성경 말씀 <span className="gold-text">To You</span>
+          {t.appTitlePrefix}
+          <span className="gold-text">{t.appTitleAccent}</span>
         </h1>
         <p className="landing-subtitle">
-          오늘 나의 얼굴 표정과 생애주기에 맞춘 <strong>말씀과 묵상, 1분 기도</strong>
+          {t.landingSubtitleBefore}
+          <strong>{t.landingSubtitleBold}</strong>
         </p>
       </header>
 
-      {/* 2. 사용자 정보 입력 카드 (한 화면에 쏙 들어오게 슬림화) */}
+      {/* 2. 사용자 정보 입력 카드 */}
       <section className="input-card">
         {/* 이름 & 직분 */}
         <div className="form-group-row">
-          <div className="form-group" style={{ flex: 1.6 }}>
+          <div className="form-group" style={{ flex: 1.5 }}>
             <label className="form-label" htmlFor="user-name">
               <User size={13} />
-              <span>성명</span>
+              <span>{t.nameLabel}</span>
             </label>
             <input
               id="user-name"
               type="text"
               className="text-input"
-              placeholder="예: 홍길동"
+              placeholder={t.namePlaceholder}
               value={user.name}
               onChange={handleNameChange}
-              maxLength={20}
+              maxLength={24}
               autoComplete="off"
             />
           </div>
@@ -194,7 +209,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
           <div className="form-group" style={{ flex: 1 }}>
             <label className="form-label" htmlFor="user-title">
               <Heart size={13} />
-              <span>직분</span>
+              <span>{t.titleLabel}</span>
             </label>
             <select
               id="user-title"
@@ -202,9 +217,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
               value={user.title || '성도'}
               onChange={handleTitleChange}
             >
-              {CHRISTIAN_TITLES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              {CHRISTIAN_TITLES.map((titleKey) => (
+                <option key={titleKey} value={titleKey}>
+                  {TITLE_LABELS[lang][titleKey]}
                 </option>
               ))}
             </select>
@@ -215,7 +230,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <div className="form-group">
           <label className="form-label">
             <Calendar size={13} />
-            <span>생년월일 (양력)</span>
+            <span>{t.birthLabel}</span>
           </label>
           <div className="birth-select-grid">
             <select
@@ -223,10 +238,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
               value={selectedYear}
               onChange={(e) => handleBirthChange(e.target.value, selectedMonth, selectedDay)}
             >
-              <option value="">출생년도</option>
+              <option value="">{t.yearPlaceholder}</option>
               {YEARS.map((y) => (
                 <option key={y} value={y}>
-                  {y}년
+                  {y}
+                  {t.yearSuffix}
                 </option>
               ))}
             </select>
@@ -236,10 +252,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
               value={selectedMonth}
               onChange={(e) => handleBirthChange(selectedYear, e.target.value, selectedDay)}
             >
-              <option value="">월</option>
+              <option value="">{t.monthPlaceholder}</option>
               {MONTHS.map((m) => (
                 <option key={m} value={m}>
-                  {m}월
+                  {m}
+                  {t.monthSuffix}
                 </option>
               ))}
             </select>
@@ -249,10 +266,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
               value={selectedDay}
               onChange={(e) => handleBirthChange(selectedYear, selectedMonth, e.target.value)}
             >
-              <option value="">일</option>
+              <option value="">{t.dayPlaceholder}</option>
               {days.map((d) => (
                 <option key={d} value={d}>
-                  {d}일
+                  {d}
+                  {t.daySuffix}
                 </option>
               ))}
             </select>
@@ -282,8 +300,8 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <div className="btn-glow" />
             <Camera size={19} />
             <div className="btn-text-wrap">
-              <span className="btn-main-text">오늘의 얼굴 스캔하기</span>
-              <span className="btn-sub-text">3초 카메라 스캔으로 은혜의 말씀 찾기</span>
+              <span className="btn-main-text">{t.scanBtnMain}</span>
+              <span className="btn-sub-text">{t.scanBtnSub}</span>
             </div>
           </button>
 
@@ -295,17 +313,17 @@ export const LandingView: React.FC<LandingViewProps> = ({
               disabled={isPhotoAnalyzing}
             >
               <ImagePlus size={15} />
-              <span>사진 파일 업로드</span>
+              <span>{t.uploadBtn}</span>
             </button>
 
             <button
               type="button"
               className="demo-action-button"
-              onClick={onTryDemo}
+              onClick={handleSkipScanClick}
               disabled={isPhotoAnalyzing}
             >
               <Sparkles size={15} />
-              <span>체험 데모</span>
+              <span>{t.skipScanBtn}</span>
             </button>
           </div>
 
@@ -318,24 +336,24 @@ export const LandingView: React.FC<LandingViewProps> = ({
           />
         </div>
 
-        {/* 4. 프라이버시 안심 안내 (1줄 미니멀) */}
+        {/* 4. 프라이버시 안심 안내 */}
         <div className="privacy-badge-compact">
           <ShieldCheck size={13} color="#34d399" />
-          <span>안심하세요: 얼굴 영상 및 사진은 서버로 전송되지 않습니다.</span>
+          <span>{t.privacyNote}</span>
         </div>
       </section>
 
-      {/* 5. 간결한 서비스 핵심 요약 태그 바 (한 화면에 깔끔하게) */}
+      {/* 5. 간결한 서비스 핵심 요약 태그 바 */}
       <div className="service-tags-bar">
         <span className="service-tag-item">
-          <Sparkle size={12} color="#fbbf24" /> 맞춤 성경 말씀
+          <Sparkle size={12} color="#fbbf24" /> {t.tagWord}
         </span>
         <span className="service-tag-divider">·</span>
-        <span className="service-tag-item">깊은 묵상</span>
+        <span className="service-tag-item">{t.tagMeditation}</span>
         <span className="service-tag-divider">·</span>
-        <span className="service-tag-item">작은 실천</span>
+        <span className="service-tag-item">{t.tagAction}</span>
         <span className="service-tag-divider">·</span>
-        <span className="service-tag-item">1분 기도</span>
+        <span className="service-tag-item">{t.tagPrayer}</span>
       </div>
     </div>
   );
