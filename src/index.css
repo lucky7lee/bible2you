@@ -1008,6 +1008,184 @@ html, body {
   color: #ffffff;
 }
 
+.section-number-badge.purple {
+  background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 100%);
+  color: #ffffff;
+}
+
+/* =========================================================================
+   보상형 애드몹 잠금 해제 카드 & 7~10번 심층 은혜 카드
+   ========================================================================= */
+.reward-unlock-card {
+  background: linear-gradient(155deg, rgba(38, 28, 82, 0.92) 0%, rgba(15, 23, 52, 0.95) 100%);
+  border: 1.5px solid rgba(192, 132, 252, 0.45);
+  border-radius: var(--radius-lg);
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4), 0 0 20px rgba(168, 85, 247, 0.14);
+  animation: fadeSlideUp 0.35s ease both;
+}
+
+.reward-badge-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--gold-light);
+  background: rgba(251, 191, 36, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.reward-card-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+}
+
+.reward-card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.reward-preview-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reward-preview-chip {
+  font-size: 11px;
+  font-weight: 600;
+  color: #e9d5ff;
+  background: rgba(139, 92, 246, 0.16);
+  border: 1px solid rgba(192, 132, 252, 0.28);
+  padding: 4px 9px;
+  border-radius: var(--radius-full);
+}
+
+.reward-notice-text {
+  font-size: 12px;
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  text-align: center;
+}
+
+.reward-watch-btn {
+  width: 100%;
+  height: 46px;
+  margin-top: 2px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #c084fc 0%, #7c3aed 55%, #d97706 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.42);
+  transition: all 0.2s ease;
+}
+
+.reward-watch-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.55);
+}
+
+.reward-watch-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.reward-unlocked-banner {
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #e9d5ff;
+  background: rgba(139, 92, 246, 0.16);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  border-radius: var(--radius-full);
+  padding: 7px 14px;
+  animation: fadeSlideUp 0.3s ease both;
+}
+
+.bonus-section-card {
+  border-color: rgba(192, 132, 252, 0.25);
+}
+
+.evening-prayer-card {
+  border-color: var(--gold-border);
+  background: linear-gradient(160deg, rgba(24, 28, 66, 0.94) 0%, rgba(10, 14, 34, 0.96) 100%);
+}
+
+.bonus-sub-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 4px;
+}
+
+.companion-verse-box {
+  background: rgba(139, 92, 246, 0.1);
+  border-left: 3px solid #c084fc;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 13px;
+}
+
+.companion-verse-text {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.65;
+}
+
+.biblical-figure-box {
+  background: rgba(10, 17, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+}
+
+.bonus-body-text {
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.65;
+}
+
+.wisdom-item-row,
+.peace-tip-box {
+  background: rgba(10, 17, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.gratitude-seeds-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .section-title-text {
   font-family: var(--font-serif);
   font-size: 15.5px;

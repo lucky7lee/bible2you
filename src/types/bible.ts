@@ -84,6 +84,27 @@ export interface RecommendedPraise {
   theme: string;
 }
 
+export interface BonusGraceData {
+  // 7. 연관 성경 구절 & 성경 인물 이야기
+  companionVerseRef: string;
+  companionVerseText: string;
+  biblicalFigureName: string;
+  biblicalFigureStory: string;
+
+  // 8. 인간관계 & 일터(학업)의 지혜
+  relationshipWisdom: string;
+  workWisdom: string;
+
+  // 9. 오늘의 감사 키워드 3가지 & 마음 다스림
+  gratitudeSeeds: string[];
+  peaceTip: string;
+
+  // 10. 하루를 마감하는 저녁 축복 기도문
+  eveningPrayerTitle: string;
+  eveningPrayerBody: string;
+  eveningBlessingLine: string;
+}
+
 export interface BibleResultData {
   lang: Language;
   user: UserProfile;
@@ -116,13 +137,16 @@ export interface BibleResultData {
     oneLineConfession: string;
   };
 
-  // 5. 기독교인이 오늘 해야 할 일 (찬양, 감사, 영적 습관)
+  // 5~6. 기독교인이 오늘 해야 할 일 (찬양, 감사, 영적 습관)
   christianDaily: {
     recommendedPraise: RecommendedPraise;
     gratitudePrompt: string;
     spiritualHabit: string;
     readingSuggestion: string;
   };
+
+  // 7~10. 보상형 광고 시청 후 열리는 심층 은혜 4가지
+  bonus: BonusGraceData;
 
   metrics: FaceMetrics;
   source: 'local-engine' | 'gemini-api';

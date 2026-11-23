@@ -39,6 +39,8 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,16 +56,19 @@ public class MainActivity extends Activity {
     // =========================================================================
     // Google AdMob Ad Unit IDs
     // 현재: Google 공식 테스트 광고 ID (비공개 테스트 중 자가 클릭 정지 방지용)
-    // 정식 출시 전 AdMob 콘솔에서 데이바이블2U 배너/전면 광고 단위 ID 발급 후 교체하세요.
+    // 정식 출시 전 AdMob 콘솔에서 데이바이블2U 배너/전면/보상형 광고 단위 ID 발급 후 교체하세요.
     // =========================================================================
     private static final String ADMOB_BANNER_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
     private static final String ADMOB_INTERSTITIAL_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
+    private static final String ADMOB_REWARDED_UNIT_ID = "ca-app-pub-3940256099942544/5224354917";
 
     private WebView webView;
     private FrameLayout bannerContainer;
     private AdView bannerAdView;
     private InterstitialAd interstitialAd;
+    private RewardedAd rewardedAd;
     private boolean isLoadingInterstitial = false;
+    private boolean isLoadingRewarded = false;
     private long lastInterstitialShownAt = 0L;
     private long lastBackPressTime = 0L;
 
@@ -254,6 +259,7 @@ public class MainActivity extends Activity {
             MobileAds.initialize(this, initializationStatus -> runOnUiThread(() -> {
                 loadBannerAd();
                 loadInterstitialAd();
+                loadRewardedAd();
             }));
         } catch (Exception ignored) {
         }
@@ -337,6 +343,74 @@ public class MainActivity extends Activity {
                 interstitialAd.show(MainActivity.this);
             } else {
                 loadInterstitialAd();
+            }
+        });
+    }
+
+    private void loadRewardedAd() {
+        if (isLoadingRewarded || rewardedAd != null) return;
+        isLoadingRewarded = true;
+        try {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            RewardedAd.load(
+                    this,
+                    ADMOB_REWARDED_UNIT_ID,
+                    adRequest,
+                    new RewardedAdLoadCallback() {
+                        @Override
+                        public void onAdLoaded(@NonNull RewardedAd ad) {
+                            rewardedAd = ad;
+                            isLoadingRewarded = false;
+                        }
+
+                        @Override
+                        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                            rewardedAd = null;
+                            isLoadingRewarded = false;
+                        }
+                    }
+            );
+        } catch (Exception ignored) {
+            isLoadingRewarded = false;
+        }
+    }
+
+    private void notifyWebReward(final boolean earned) {
+        runOnUiThread(() -> {
+            if (webView == null) return;
+            String js = earned
+                    ? "window.__onDayBibleRewardEarned && window.__onDayBibleRewardEarned();"
+                    : "window.__onDayBibleRewardCancelled && window.__onDayBibleRewardCancelled();";
+            webView.evaluateJavascript(js, null);
+        });
+    }
+
+    private void showRewardedAd() {
+        runOnUiThread(() -> {
+            if (rewardedAd != null) {
+                final boolean[] earnedFlag = {false};
+                rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        rewardedAd = null;
+                        loadRewardedAd();
+                        notifyWebReward(earnedFlag[0]);
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                        rewardedAd = null;
+                        loadRewardedAd();
+                        notifyWebReward(true); // 광고 표시 실패 시 사용자 경험 보호를 위해 잠금 해제
+                    }
+                });
+                rewardedAd.show(MainActivity.this, rewardItem -> {
+                    earnedFlag[0] = true;
+                });
+            } else {
+                // 광고가 아직 로드되지 않았거나 오프라인인 경우 재로드 시도 후 잠금 해제 폴백
+                loadRewardedAd();
+                notifyWebReward(true);
             }
         });
     }
@@ -432,6 +506,11 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void showInterstitial() {
             showInterstitialIfReady();
+        }
+
+        @JavascriptInterface
+        public void showRewardedAd() {
+            MainActivity.this.showRewardedAd();
         }
     }
 }

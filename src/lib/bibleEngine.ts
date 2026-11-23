@@ -7,6 +7,7 @@ import {
 } from '../types/bible';
 import { getLifeStageInfo, VERSE_DATABASE, VerseThemeData } from './bibleVerses';
 import { VERSE_DATABASE_EN } from './bibleVersesEn';
+import { getBonusGraceData } from './bonusGrace';
 import { TITLE_LABELS } from './i18n';
 
 // 간단한 문자열 해시 함수 (일관된 시드 도출용)
@@ -165,6 +166,7 @@ export function generateLocalBibleResult(
       spiritualHabit: picked.spiritualHabit,
       readingSuggestion: picked.readingSuggestion,
     },
+    bonus: getBonusGraceData(mood, lang),
     metrics,
     source: 'local-engine',
   };
@@ -310,6 +312,7 @@ Return pure JSON (no markdown fences) with these exact fields:
         spiritualHabit: parsed.spiritualHabit || localFallback.christianDaily.spiritualHabit,
         readingSuggestion: parsed.readingSuggestion || localFallback.christianDaily.readingSuggestion,
       },
+      bonus: localFallback.bonus,
       metrics,
       source: 'gemini-api',
     };

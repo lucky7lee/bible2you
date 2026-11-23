@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Share2,
   Check,
@@ -13,17 +13,30 @@ import {
   Sparkle,
   Smile,
   Compass,
+  Gift,
+  PlayCircle,
+  Users,
+  Briefcase,
+  Heart,
+  Moon,
+  Loader2,
 } from 'lucide-react';
 import { BibleResultData, Language } from '../types/bible';
 import { triggerBlessingConfetti } from '../lib/confetti';
 import { EXPRESSION_LABELS, TITLE_LABELS, UI_TEXT } from '../lib/i18n';
+import { getBonusGraceData } from '../lib/bonusGrace';
 
 interface BibleResultProps {
   lang: Language;
   data: BibleResultData;
   initialCheckedActions?: Record<string, boolean>;
   initialAmenClicked?: boolean;
-  onProgressChange?: (checkedActions: Record<string, boolean>, hasAmenClicked: boolean) => void;
+  initialBonusUnlocked?: boolean;
+  onProgressChange?: (
+    checkedActions: Record<string, boolean>,
+    hasAmenClicked: boolean,
+    hasUnlockedBonus: boolean
+  ) => void;
   onRescan: () => void;
   onGoHome: () => void;
 }
@@ -33,6 +46,7 @@ export const BibleResult: React.FC<BibleResultProps> = ({
   data,
   initialCheckedActions,
   initialAmenClicked = false,
+  initialBonusUnlocked = false,
   onProgressChange,
   onRescan,
   onGoHome,
@@ -52,18 +66,93 @@ export const BibleResult: React.FC<BibleResultProps> = ({
     metrics,
   } = data;
 
+  // 이전 저장 데이터 호환용 폴백 포함
+  const bonus = data.bonus || getBonusGraceData(metrics.dominantMood || 'peace', lang);
+
   const [hasAmenClicked, setHasAmenClicked] = useState(initialAmenClicked);
+  const [bonusUnlocked, setBonusUnlocked] = useState(initialBonusUnlocked);
+  const [isLoadingRewardAd, setIsLoadingRewardAd] = useState(false);
+  const [rewardNotice, setRewardNotice] = useState<string | null>(null);
   const [copiedText, setCopiedText] = useState(false);
   const [checkedActions, setCheckedActions] = useState<Record<string, boolean>>(
     initialCheckedActions || {}
   );
+
+  // Android 보상형 광고 완료/취소 글로벌 콜백 등록
+  useEffect(() => {
+    const win = window as unknown as {
+      __onDayBibleRewardEarned?: () => void;
+      __onDayBibleRewardCancelled?: () => void;
+    };
+
+    win.__onDayBibleRewardEarned = () => {
+      setIsLoadingRewardAd(false);
+      setRewardNotice(null);
+      setBonusUnlocked(true);
+      triggerBlessingConfetti();
+      if (onProgressChange) {
+        onProgressChange(checkedActions, hasAmenClicked, true);
+      }
+      setTimeout(() => {
+        document.getElementById('sec-7')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    };
+
+    win.__onDayBibleRewardCancelled = () => {
+      setIsLoadingRewardAd(false);
+      setRewardNotice(t.rewardCancelMsg);
+    };
+
+    return () => {
+      delete win.__onDayBibleRewardEarned;
+      delete win.__onDayBibleRewardCancelled;
+    };
+  }, [checkedActions, hasAmenClicked, onProgressChange, t.rewardCancelMsg]);
+
+  // 보상형 애드몹 버튼 클릭 핸들러
+  const handleWatchRewardedAd = () => {
+    if (isLoadingRewardAd || bonusUnlocked) return;
+    setRewardNotice(null);
+    setIsLoadingRewardAd(true);
+
+    const bridge = (
+      window as unknown as {
+        DayBibleAndroid?: { showRewardedAd?: () => void };
+      }
+    ).DayBibleAndroid;
+
+    if (bridge && typeof bridge.showRewardedAd === 'function') {
+      // Android 네이티브 Google AdMob 보상형 광고 실행
+      try {
+        bridge.showRewardedAd();
+      } catch {
+        setIsLoadingRewardAd(false);
+        setBonusUnlocked(true);
+        triggerBlessingConfetti();
+        onProgressChange?.(checkedActions, hasAmenClicked, true);
+      }
+    } else {
+      // 웹 브라우저 환경에서는 짧은 연출 후 바로 심층 은혜 잠금 해제
+      window.setTimeout(() => {
+        setIsLoadingRewardAd(false);
+        setBonusUnlocked(true);
+        triggerBlessingConfetti();
+        if (onProgressChange) {
+          onProgressChange(checkedActions, hasAmenClicked, true);
+        }
+        setTimeout(() => {
+          document.getElementById('sec-7')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+      }, 900);
+    }
+  };
 
   // 아멘 버튼 클릭 (축복의 빛 이펙트 & 감사 상태 영속 저장)
   const handleAmenClick = () => {
     triggerBlessingConfetti();
     setHasAmenClicked(true);
     if (onProgressChange) {
-      onProgressChange(checkedActions, true);
+      onProgressChange(checkedActions, true, bonusUnlocked);
     }
   };
 
@@ -75,7 +164,7 @@ export const BibleResult: React.FC<BibleResultProps> = ({
         triggerBlessingConfetti();
       }
       if (onProgressChange) {
-        onProgressChange(next, hasAmenClicked);
+        onProgressChange(next, hasAmenClicked, bonusUnlocked);
       }
       return next;
     });
@@ -444,6 +533,149 @@ ${prayer.body}
           </div>
         </div>
       </section>
+
+      {/* =========================================================================
+          보상형 애드몹 버튼 (잠금 해제 전) 또는 7~10번 심층 은혜 카드 (잠금 해제 후)
+          ========================================================================= */}
+      {!bonusUnlocked ? (
+        <section className="reward-unlock-card">
+          <div className="reward-badge-row">
+            <Gift size={14} color="#fef08a" />
+            <span>{t.rewardCardBadge}</span>
+          </div>
+
+          <h3 className="reward-card-title">{t.rewardCardTitle}</h3>
+          <p className="reward-card-desc">{t.rewardCardDesc}</p>
+
+          <div className="reward-preview-chips">
+            <span className="reward-preview-chip">7. {t.sec7Title}</span>
+            <span className="reward-preview-chip">8. {t.sec8Title}</span>
+            <span className="reward-preview-chip">9. {t.sec9Title}</span>
+            <span className="reward-preview-chip">10. {t.sec10Title}</span>
+          </div>
+
+          {rewardNotice && (
+            <div className="reward-notice-text">{rewardNotice}</div>
+          )}
+
+          <button
+            type="button"
+            className="reward-watch-btn"
+            onClick={handleWatchRewardedAd}
+            disabled={isLoadingRewardAd}
+          >
+            {isLoadingRewardAd ? (
+              <Loader2 size={18} className="spin-icon" />
+            ) : (
+              <PlayCircle size={18} />
+            )}
+            <span>{isLoadingRewardAd ? t.rewardBtnLoading : t.rewardBtn}</span>
+          </button>
+        </section>
+      ) : (
+        <>
+          <div className="reward-unlocked-banner">{t.rewardUnlockedBanner}</div>
+
+          {/* 7. 연관 성경 구절 & 성경 인물 이야기 */}
+          <section id="sec-7" className="ordered-section-card bonus-section-card">
+            <div className="section-header-bar">
+              <div className="section-number-badge purple">7</div>
+              <h3 className="section-title-text">{t.sec7Title}</h3>
+            </div>
+
+            <div className="section-card-content">
+              <div className="companion-verse-box">
+                <span className="bonus-sub-label">
+                  {t.companionVerseLabel} · {bonus.companionVerseRef}
+                </span>
+                <p className="companion-verse-text">“{bonus.companionVerseText}”</p>
+              </div>
+
+              <div className="biblical-figure-box">
+                <span className="bonus-sub-label">
+                  {t.biblicalFigureLabel} — {bonus.biblicalFigureName}
+                </span>
+                <p className="bonus-body-text">{bonus.biblicalFigureStory}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* 8. 오늘의 인간관계 & 일터의 지혜 */}
+          <section id="sec-8" className="ordered-section-card bonus-section-card">
+            <div className="section-header-bar">
+              <div className="section-number-badge purple">8</div>
+              <h3 className="section-title-text">{t.sec8Title}</h3>
+            </div>
+
+            <div className="section-card-content">
+              <div className="wisdom-item-row">
+                <Users size={15} color="#93c5fd" style={{ flexShrink: 0, marginTop: 2 }} />
+                <div className="habit-text-group">
+                  <span className="habit-label">{t.relationWisdomLabel}</span>
+                  <p className="bonus-body-text">{bonus.relationshipWisdom}</p>
+                </div>
+              </div>
+
+              <div className="wisdom-item-row">
+                <Briefcase size={15} color="#fbbf24" style={{ flexShrink: 0, marginTop: 2 }} />
+                <div className="habit-text-group">
+                  <span className="habit-label">{t.workWisdomLabel}</span>
+                  <p className="bonus-body-text">{bonus.workWisdom}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 9. 오늘의 감사 노트 3가지 & 마음 다스림 */}
+          <section id="sec-9" className="ordered-section-card bonus-section-card">
+            <div className="section-header-bar">
+              <div className="section-number-badge purple">9</div>
+              <h3 className="section-title-text">{t.sec9Title}</h3>
+            </div>
+
+            <div className="section-card-content">
+              <div className="gratitude-seeds-wrap">
+                <span className="bonus-sub-label">{t.gratitudeSeedsLabel}</span>
+                <div className="questions-list">
+                  {bonus.gratitudeSeeds.map((seed, idx) => (
+                    <div key={idx} className="question-item">
+                      <span className="q-badge">{idx + 1}</span>
+                      <span className="q-text">{seed}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="peace-tip-box">
+                <Heart size={14} color="#f472b6" style={{ flexShrink: 0, marginTop: 2 }} />
+                <div className="habit-text-group">
+                  <span className="habit-label">{t.peaceTipLabel}</span>
+                  <p className="bonus-body-text">{bonus.peaceTip}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 10. 하루를 마감하는 저녁 축복 기도 */}
+          <section id="sec-10" className="ordered-section-card bonus-section-card evening-prayer-card">
+            <div className="section-header-bar">
+              <div className="section-number-badge gold">10</div>
+              <h3 className="section-title-text gold">{bonus.eveningPrayerTitle}</h3>
+            </div>
+
+            <div className="section-card-content">
+              <div className="prayer-text-wrap">
+                <p className="prayer-content-text">{bonus.eveningPrayerBody}</p>
+                <div className="confession-pill">
+                  <Moon size={13} color="#fef08a" style={{ display: 'inline', verticalAlign: '-2px', marginRight: 5 }} />
+                  <span>{t.eveningBlessingLabel}</span>
+                  <strong>"{bonus.eveningBlessingLine}"</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
       {/* =========================================================================
           하단 공유 및 네비게이션 버튼 ("처음으로" 먼저, "다시 스캔하기" 다음!)

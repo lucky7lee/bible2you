@@ -9,6 +9,7 @@ export interface TodaySavedRecord {
   resultData: BibleResultData;
   checkedActions: Record<string, boolean>;
   hasAmenClicked: boolean;
+  hasUnlockedBonus: boolean;
 }
 
 // 기기 현지 시간 기준 YYYY-MM-DD 반환
@@ -34,6 +35,7 @@ export function loadTodayRecord(): TodaySavedRecord | null {
       ...parsed,
       checkedActions: parsed.checkedActions || {},
       hasAmenClicked: !!parsed.hasAmenClicked,
+      hasUnlockedBonus: !!parsed.hasUnlockedBonus,
     };
   } catch {
     return null;
@@ -46,7 +48,8 @@ export function saveTodayRecord(
   metrics: FaceMetrics,
   resultData: BibleResultData,
   checkedActions: Record<string, boolean> = {},
-  hasAmenClicked: boolean = false
+  hasAmenClicked: boolean = false,
+  hasUnlockedBonus: boolean = false
 ): TodaySavedRecord {
   const record: TodaySavedRecord = {
     dateKey: getLocalDateKey(),
@@ -55,6 +58,7 @@ export function saveTodayRecord(
     resultData,
     checkedActions,
     hasAmenClicked,
+    hasUnlockedBonus,
   };
   try {
     localStorage.setItem(TODAY_RECORD_KEY, JSON.stringify(record));
@@ -77,10 +81,11 @@ export function saveTodayRecord(
   return record;
 }
 
-// 오늘 기록의 체크 상태 / 아멘 상태만 부분 업데이트
+// 오늘 기록의 체크 상태 / 아멘 상태 / 보상형 보너스 잠금 해제 상태 부분 업데이트
 export function updateTodayProgress(
   checkedActions: Record<string, boolean>,
-  hasAmenClicked: boolean
+  hasAmenClicked: boolean,
+  hasUnlockedBonus: boolean
 ): void {
   const current = loadTodayRecord();
   if (!current) return;
@@ -89,6 +94,7 @@ export function updateTodayProgress(
     current.metrics,
     current.resultData,
     checkedActions,
-    hasAmenClicked
+    hasAmenClicked,
+    hasUnlockedBonus
   );
 }

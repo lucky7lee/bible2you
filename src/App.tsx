@@ -156,7 +156,8 @@ export default function App() {
         lastMetrics,
         updated,
         todayRecord?.checkedActions || {},
-        todayRecord?.hasAmenClicked || false
+        todayRecord?.hasAmenClicked || false,
+        todayRecord?.hasUnlockedBonus || false
       );
       setTodayRecord(saved);
     }
@@ -188,7 +189,7 @@ export default function App() {
       try {
         const data = await generateBibleResult(user, metrics, settings, lang);
         setResultData(data);
-        const saved = saveTodayRecord(user, metrics, data, {}, false);
+        const saved = saveTodayRecord(user, metrics, data, {}, false, false);
         setTodayRecord(saved);
         setStep('result');
       } catch (err) {
@@ -217,7 +218,8 @@ export default function App() {
         fresh.metrics,
         translated,
         fresh.checkedActions,
-        fresh.hasAmenClicked
+        fresh.hasAmenClicked,
+        fresh.hasUnlockedBonus
       );
       setTodayRecord(updated);
     } else {
@@ -227,12 +229,16 @@ export default function App() {
     setStep('result');
   }, [lang]);
 
-  // 결과 화면에서 실천사항 체크/아멘 클릭 시 실시간 저장
+  // 결과 화면에서 실천사항 체크/아멘/보상형 보너스 잠금 해제 시 실시간 저장
   const handleProgressChange = useCallback(
-    (checkedActions: Record<string, boolean>, hasAmenClicked: boolean) => {
-      updateTodayProgress(checkedActions, hasAmenClicked);
+    (
+      checkedActions: Record<string, boolean>,
+      hasAmenClicked: boolean,
+      hasUnlockedBonus: boolean
+    ) => {
+      updateTodayProgress(checkedActions, hasAmenClicked, hasUnlockedBonus);
       setTodayRecord((prev) =>
-        prev ? { ...prev, checkedActions, hasAmenClicked } : prev
+        prev ? { ...prev, checkedActions, hasAmenClicked, hasUnlockedBonus } : prev
       );
     },
     []
@@ -409,6 +415,7 @@ export default function App() {
           data={resultData}
           initialCheckedActions={todayRecord?.checkedActions}
           initialAmenClicked={todayRecord?.hasAmenClicked}
+          initialBonusUnlocked={todayRecord?.hasUnlockedBonus}
           onProgressChange={handleProgressChange}
           onRescan={() => {
             try {
