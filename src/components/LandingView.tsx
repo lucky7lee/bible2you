@@ -17,8 +17,10 @@ import { TITLE_LABELS, UI_TEXT } from '../lib/i18n';
 interface LandingViewProps {
   lang: Language;
   user: UserProfile;
+  hasTodayWord: boolean;
   onChangeUser: (next: UserProfile) => void;
   onStartCamera: () => void;
+  onViewTodayWord: () => void;
   onUploadPhoto: (file: File) => void;
   onSkipScan: () => void;
   isPhotoAnalyzing: boolean;
@@ -43,8 +45,10 @@ const CHRISTIAN_TITLES: ChristianTitle[] = [
 export const LandingView: React.FC<LandingViewProps> = ({
   lang,
   user,
+  hasTodayWord,
   onChangeUser,
   onStartCamera,
+  onViewTodayWord,
   onUploadPhoto,
   onSkipScan,
   isPhotoAnalyzing,
@@ -303,6 +307,46 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <div className="btn-text-wrap">
               <span className="btn-main-text">{t.scanBtnMain}</span>
               <span className="btn-sub-text">{t.scanBtnSub}</span>
+            </div>
+          </button>
+
+          {/* 오늘 말씀 확인하기 (가로=스캔하기와 동일, 높이·스타일=사진 업로드와 동일) */}
+          <button
+            type="button"
+            className={`view-today-button ${hasTodayWord ? 'enabled' : 'disabled'}`}
+            onClick={onViewTodayWord}
+            disabled={!hasTodayWord || isPhotoAnalyzing}
+          >
+            <svg
+              className="bible-grace-icon"
+              viewBox="0 0 24 24"
+              width="19"
+              height="19"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M2.5 6.5C2.5 5.4 3.4 4.5 4.5 4.5H9.2C10.7 4.5 12 5.4 12 6.8V19.5C12 18.4 10.9 17.6 9.5 17.6H4.5C3.4 17.6 2.5 16.7 2.5 15.6V6.5Z"
+                stroke={hasTodayWord ? '#fbbf24' : '#64748b'}
+                strokeWidth="1.7"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M21.5 6.5C21.5 5.4 20.6 4.5 19.5 4.5H14.8C13.3 4.5 12 5.4 12 6.8V19.5C12 18.4 13.1 17.6 14.5 17.6H19.5C20.6 17.6 21.5 16.7 21.5 15.6V6.5Z"
+                stroke={hasTodayWord ? '#fbbf24' : '#64748b'}
+                strokeWidth="1.7"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M12 1.8V4.2M10.8 3H13.2"
+                stroke={hasTodayWord ? '#fef08a' : '#64748b'}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="view-today-text-wrap">
+              <span className="view-today-main">{t.viewTodayBtnMain}</span>
+              <span className="view-today-sub">{t.viewTodayBtnSub}</span>
             </div>
           </button>
 

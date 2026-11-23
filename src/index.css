@@ -176,8 +176,8 @@ html, body {
 .landing-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding-top: 6px;
+  gap: 11px;
+  padding-top: 4px;
 }
 
 .sacred-header {
@@ -185,40 +185,40 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 0 2px;
+  padding: 4px 0 0;
 }
 
 .cross-badge-compact {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, rgba(10, 17, 40, 0.8) 75%);
   border: 1.5px solid var(--gold-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  margin-bottom: 6px;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.28);
 }
 
 .date-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11.5px;
-  padding: 3px 10px;
+  font-size: 11px;
+  padding: 2px 10px;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.06);
   color: var(--gold-light);
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .landing-title {
   font-family: var(--font-serif);
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   letter-spacing: -0.4px;
 }
 
@@ -228,7 +228,7 @@ html, body {
 }
 
 .landing-subtitle {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--text-secondary);
 }
 
@@ -243,11 +243,11 @@ html, body {
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--gold-border);
   border-radius: var(--radius-lg);
-  padding: 16px 16px 14px;
+  padding: 14px 15px 12px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .form-group-row {
@@ -362,6 +362,61 @@ html, body {
   font-weight: 500;
 }
 
+/* 오늘 말씀 확인하기 (가로=스캔하기와 동일 100%, 높이·스타일=사진 업로드와 동일 42px) */
+.view-today-button {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-today-button.enabled:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: var(--gold-border);
+  color: var(--gold-light);
+}
+
+.view-today-button.disabled,
+.view-today-button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.bible-grace-icon {
+  flex-shrink: 0;
+}
+
+.view-today-text-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1.18;
+}
+
+.view-today-main {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.view-today-sub {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .secondary-buttons-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -370,7 +425,7 @@ html, body {
 
 .secondary-action-button,
 .demo-action-button {
-  height: 38px;
+  height: 42px;
   padding: 0 8px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.06);
@@ -384,6 +439,7 @@ html, body {
   gap: 5px;
   white-space: nowrap;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .secondary-action-button:hover,

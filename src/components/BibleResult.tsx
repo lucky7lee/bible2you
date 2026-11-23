@@ -21,6 +21,9 @@ import { EXPRESSION_LABELS, TITLE_LABELS, UI_TEXT } from '../lib/i18n';
 interface BibleResultProps {
   lang: Language;
   data: BibleResultData;
+  initialCheckedActions?: Record<string, boolean>;
+  initialAmenClicked?: boolean;
+  onProgressChange?: (checkedActions: Record<string, boolean>, hasAmenClicked: boolean) => void;
   onRescan: () => void;
   onGoHome: () => void;
 }
@@ -28,6 +31,9 @@ interface BibleResultProps {
 export const BibleResult: React.FC<BibleResultProps> = ({
   lang,
   data,
+  initialCheckedActions,
+  initialAmenClicked = false,
+  onProgressChange,
   onRescan,
   onGoHome,
 }) => {
@@ -46,22 +52,30 @@ export const BibleResult: React.FC<BibleResultProps> = ({
     metrics,
   } = data;
 
-  const [hasAmenClicked, setHasAmenClicked] = useState(false);
+  const [hasAmenClicked, setHasAmenClicked] = useState(initialAmenClicked);
   const [copiedText, setCopiedText] = useState(false);
-  const [checkedActions, setCheckedActions] = useState<Record<string, boolean>>({});
+  const [checkedActions, setCheckedActions] = useState<Record<string, boolean>>(
+    initialCheckedActions || {}
+  );
 
-  // 아멘 버튼 클릭 (축복의 빛 이펙트 & 감사 상태)
+  // 아멘 버튼 클릭 (축복의 빛 이펙트 & 감사 상태 영속 저장)
   const handleAmenClick = () => {
     triggerBlessingConfetti();
     setHasAmenClicked(true);
+    if (onProgressChange) {
+      onProgressChange(checkedActions, true);
+    }
   };
 
-  // 실천 과제 체크박스 토글
+  // 실천 과제 체크박스 토글 (영속 저장)
   const handleToggleAction = (id: string) => {
     setCheckedActions((prev) => {
       const next = { ...prev, [id]: !prev[id] };
       if (next[id]) {
         triggerBlessingConfetti();
+      }
+      if (onProgressChange) {
+        onProgressChange(next, hasAmenClicked);
       }
       return next;
     });
