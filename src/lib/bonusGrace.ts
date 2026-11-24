@@ -89,7 +89,7 @@ const BONUS_KO: Record<FaceMetrics['dominantMood'], BonusGraceData> = {
       '생각이 너무 복잡할 때는 메모장에 고민 1줄만 적고 "주님께 맡김"이라고 써 둔 뒤 잠시 머리를 비워보세요.',
     eveningPrayerTitle: '하루를 마감하는 저녁 지혜 기도문',
     eveningPrayerBody:
-      '지혜의 근원이 되시는 하나님 아버지, 오늘 하루 수많은 선택과 생각 속에서 저를 지켜주셔서 감사합니다. 내 짧은 판단으로 실수한 부분이 있다면 주님의 은혜로 선하게 덮어주옵소서. 고요한 밤 주님의 세미한 음성으로 마음을 정돈하게 하시고, 내일은 더 맑은 분별력으로 걷게 하옵소서. 예수님의 이름으로 기도드립니다. 아멘.',
+      '지혜의 근원이 되시는 하나님 아버지, 오늘 하루 수많은 선택과 생각 속에서 저를 지켜주셔서 감사합니다. 내 짧은 판단으로 실수한 부분이 있다면 주님의 은혜로 선하게 덮어주옵소서. 고요한 밤 주님의 잔잔한 위로로 마음을 정돈하게 하시고, 내일은 더 맑은 분별력으로 걷게 하옵소서. 예수님의 이름으로 기도드립니다. 아멘.',
     eveningBlessingLine: '범사에 주님을 인정하는 자의 앞길을 하나님이 곧게 펴십니다.',
   },
   love: {
@@ -282,8 +282,37 @@ const BONUS_EN: Record<FaceMetrics['dominantMood'], BonusGraceData> = {
 
 export function getBonusGraceData(
   mood: FaceMetrics['dominantMood'],
-  lang: Language
+  lang: Language,
+  seed: number = 0
 ): BonusGraceData {
   const table = lang === 'en' ? BONUS_EN : BONUS_KO;
-  return table[mood] || table.peace;
+  const moods: Array<FaceMetrics['dominantMood']> = [
+    'rest',
+    'joy',
+    'courage',
+    'wisdom',
+    'love',
+    'peace',
+  ];
+  const baseIdx = Math.max(0, moods.indexOf(mood));
+  // 날짜 시드에 따라 기본 테마 또는 인접 테마에서 연관 말씀·지혜·저녁 기도를 다채롭게 교차 조합
+  const primary = table[moods[baseIdx]] || table.peace;
+  const secondary = table[moods[(baseIdx + (seed % 5) + 1) % moods.length]] || primary;
+  const tertiary = table[moods[(baseIdx + ((seed >> 2) % 5) + 1) % moods.length]] || primary;
+
+  if (seed === 0) return primary;
+
+  return {
+    companionVerseRef: (seed % 2 === 0 ? primary : secondary).companionVerseRef,
+    companionVerseText: (seed % 2 === 0 ? primary : secondary).companionVerseText,
+    biblicalFigureName: (seed % 2 === 0 ? primary : secondary).biblicalFigureName,
+    biblicalFigureStory: (seed % 2 === 0 ? primary : secondary).biblicalFigureStory,
+    relationshipWisdom: ((seed >> 1) % 2 === 0 ? primary : tertiary).relationshipWisdom,
+    workWisdom: ((seed >> 2) % 2 === 0 ? primary : secondary).workWisdom,
+    gratitudeSeeds: ((seed >> 3) % 2 === 0 ? primary : tertiary).gratitudeSeeds,
+    peaceTip: ((seed >> 1) % 2 === 0 ? secondary : primary).peaceTip,
+    eveningPrayerTitle: ((seed >> 4) % 2 === 0 ? primary : secondary).eveningPrayerTitle,
+    eveningPrayerBody: ((seed >> 4) % 2 === 0 ? primary : secondary).eveningPrayerBody,
+    eveningBlessingLine: ((seed >> 4) % 2 === 0 ? primary : secondary).eveningBlessingLine,
+  };
 }

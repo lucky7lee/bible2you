@@ -1,5 +1,7 @@
 export type Language = 'ko' | 'en';
 
+export type Gender = 'male' | 'female';
+
 export type ExpressionKey =
   | 'peaceful'
   | 'joyful'
@@ -18,16 +20,26 @@ export type ExpressionType =
   | '새로운 용기를 품은 결단'
   | '기본 정보 맞춤 묵상';
 
+export interface FaceFeatureDetails {
+  faceShapeKey: 'oval' | 'round' | 'angular' | 'long' | 'heart';
+  eyeShapeKey: 'bright' | 'gentle' | 'focused' | 'smiling';
+  eyebrowShapeKey: 'arch' | 'straight' | 'strong' | 'soft';
+  noseShapeKey: 'generous' | 'defined' | 'balanced';
+  mouthShapeKey: 'wideSmile' | 'warm' | 'calm';
+  balanceKey: 'forehead' | 'middle' | 'lower' | 'harmony';
+}
+
 export interface FaceMetrics {
   smileScore: number; // 미소 & 기쁨 지수 (0~100)
-  vitalityScore: number; // 눈빛 영적 활력 (0~100)
-  symmetryScore: number; // 얼굴 조화 및 평강도 (0~100)
-  calmScore: number; // 고요함과 평온함 (0~100)
-  fatigueScore: number; // 피로도 / 안식 필요도 (0~100)
+  vitalityScore: number; // 눈빛 활력도 (0~100)
+  symmetryScore: number; // 얼굴 좌우 균형도 (0~100)
+  calmScore: number; // 평온함과 차분함 (0~100)
+  fatigueScore: number; // 피로도 / 쉼 필요도 (0~100)
 
   expression: ExpressionType;
   expressionKey?: ExpressionKey;
-  faceHighlights: string[]; // 얼굴에서 읽어낸 은혜의 특징 3가지
+  faceHighlights: string[];
+  faceFeatures?: FaceFeatureDetails;
   dominantMood: 'peace' | 'joy' | 'rest' | 'courage' | 'wisdom' | 'love';
 
   capturedAt: string;
@@ -42,13 +54,16 @@ export type ChristianTitle =
   | '형제'
   | '자매'
   | '집사'
+  | '안수집사'
   | '권사'
   | '장로'
+  | '사모'
   | '목회자';
 
 export interface UserProfile {
   name: string;
   birthDate: string; // YYYY-MM-DD
+  gender?: Gender;
   title?: ChristianTitle;
 }
 
@@ -60,14 +75,14 @@ export interface LifeStageInfo {
 }
 
 export interface BibleVerse {
-  reference: string; // 예: "빌립보서 4장 6-7절" / "Philippians 4:6-7"
+  reference: string;
   testament: string; // '구약' | '신약' | 'OT' | 'NT'
   book: string;
   chapter: number;
   verseRange: string;
   text: string;
-  context: string; // 말씀 배경 및 영적 의미
-  keyword: string; // 키워드: 평안, 능력, 사랑 등
+  context: string;
+  keyword: string;
 }
 
 export interface DailyActionItem {
@@ -112,7 +127,7 @@ export interface BibleResultData {
   todayDateText: string;
   todayTheme: string;
   themeSubtitle: string;
-  spiritualScore: number; // 오늘의 은혜 지수 (0~100)
+  spiritualScore: number;
 
   // 1. 오늘의 성경 말씀
   verse: BibleVerse;

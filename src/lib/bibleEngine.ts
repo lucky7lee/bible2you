@@ -5,20 +5,19 @@ import {
   Language,
   UserProfile,
 } from '../types/bible';
-import { getLifeStageInfo, VERSE_DATABASE, VerseThemeData } from './bibleVerses';
-import { VERSE_DATABASE_EN } from './bibleVersesEn';
+import { getLifeStageInfo } from './bibleVerses';
 import { getBonusGraceData } from './bonusGrace';
-import { TITLE_LABELS } from './i18n';
-
-// 간단한 문자열 해시 함수 (일관된 시드 도출용)
-function stringHash(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
+import { GENDER_LABELS, TITLE_LABELS } from './i18n';
+import {
+  buildPersonalizedDiagnosis,
+  buildPersonalizedPrayer,
+  getTodayLocalKey,
+  hashString,
+  pickDailyActions,
+  pickDailyExtras,
+  pickDailyQuestions,
+  pickDailyVerse,
+} from './personalizer';
 
 // 오늘 날짜 포맷 (한글 / 영어)
 export function getTodayDateText(lang: Language = 'ko'): string {
@@ -46,7 +45,15 @@ function formatDisplayName(user: UserProfile, lang: Language): string {
   if (lang === 'en') {
     const enTitle = TITLE_LABELS.en[titleKey] || 'Believer';
     if (!rawName) return enTitle;
-    if (titleKey === '목회자' || titleKey === '장로' || titleKey === '집사' || titleKey === '권사' || titleKey === '형제' || titleKey === '자매') {
+    if (
+      titleKey === '목회자' ||
+      titleKey === '장로' ||
+      titleKey === '집사' ||
+      titleKey === '안수집사' ||
+      titleKey === '권사' ||
+      titleKey === '형제' ||
+      titleKey === '자매'
+    ) {
       return `${enTitle} ${rawName}`;
     }
     return rawName;
@@ -55,7 +62,7 @@ function formatDisplayName(user: UserProfile, lang: Language): string {
   return rawName ? `${rawName} ${koTitle}` : koTitle;
 }
 
-// 로컬 지능형 엔진으로 맞춤 말씀 생성 (한글 / 영어 & 스캔 / 스캔없이 진행 모두 지원)
+// 로컬 다층 조합 엔진으로 매일 새롭고 다채로운 맞춤 말씀 생성
 export function generateLocalBibleResult(
   user: UserProfile,
   metrics: FaceMetrics,
@@ -63,18 +70,24 @@ export function generateLocalBibleResult(
 ): BibleResultData {
   const lifeStage = getLifeStageInfo(user.birthDate, lang);
   const todayDateText = getTodayDateText(lang);
-
-  const db = lang === 'en' ? VERSE_DATABASE_EN : VERSE_DATABASE;
+  const todayKey = getTodayLocalKey();
   const mood = metrics.dominantMood || 'peace';
-  const themeList: VerseThemeData[] = db[mood] || db.peace;
 
-  // 이름, 생년월일, 오늘 날짜로 시드 생성
-  const todayYMD = new Date().toISOString().slice(0, 10);
-  const seedStr = `${user.name || 'user'}_${user.birthDate || '2000-01-01'}_${todayYMD}_${mood}`;
-  const seed = stringHash(seedStr);
-  const picked = themeList[seed % themeList.length];
+  // 이름 + 성별 + 직분 + 생년월일 + 오늘 날짜(현지) + 얼굴 특징 시드 조합
+  const featureSig = metrics.faceFeatures
+    ? `${metrics.faceFeatures.faceShapeKey}_${metrics.faceFeatures.eyeShapeKey}_${metrics.faceFeatures.eyebrowShapeKey}_${metrics.faceFeatures.noseShapeKey}_${metrics.faceFeatures.mouthShapeKey}_${metrics.faceFeatures.balanceKey}`
+    : 'noscan';
 
-  // 은혜 지수 (0~100) 계산
+  const seedStr = `${user.name || 'user'}_${user.gender || 'male'}_${user.title || '성도'}_${
+    user.birthDate || '2000-01-01'
+  }_${todayKey}_${mood}_${featureSig}`;
+  const seed = hashString(seedStr);
+
+  // 1. 최근 14일 중복을 피해서 36개 성경 말씀 중 오늘의 구절 선택
+  const pickedEntry = pickDailyVerse(mood, seed, todayKey);
+  const localized = pickedEntry[lang];
+
+  // 은혜 지수 (0~100)
   const baseSpiritual = Math.round(
     metrics.smileScore * 0.35 +
       metrics.calmScore * 0.35 +
@@ -88,91 +101,74 @@ export function generateLocalBibleResult(
 
   const displayName = formatDisplayName(user, lang);
 
-  // 영적 진단 메시지 조립 (스캔없이 진행 vs 얼굴 스캔 분기 + 언어 분기)
-  let faceSpiritualDiagnosis = '';
+  // 2. 얼굴 이목구비 + 표정 + 성별 + 직분 + 생애주기 맞춤 진단
+  const faceSpiritualDiagnosis = buildPersonalizedDiagnosis(
+    displayName,
+    user,
+    lifeStage,
+    metrics,
+    seed,
+    lang
+  );
 
-  if (metrics.isSkippedScan) {
-    if (lang === 'en') {
-      faceSpiritualDiagnosis = `Reflecting on ${displayName}'s season of life (${lifeStage.stage}, age ${lifeStage.age}) and today's date, God has prepared a timely word of grace for you. ${lifeStage.stageMessage}`;
-    } else {
-      faceSpiritualDiagnosis = `${displayName}의 소중한 생애주기(${lifeStage.stage}, 만 ${lifeStage.age}세)와 오늘의 발걸음을 묵상하며 주님이 예비하신 은혜의 말씀을 찾았습니다. ${lifeStage.stageMessage}`;
-    }
-  } else if (lang === 'en') {
-    if (metrics.dominantMood === 'rest') {
-      faceSpiritualDiagnosis = `Today, ${displayName}'s expression reflects honest effort and quiet weariness. God loves not only your faithful work, but also your soul at rest. Lay your burdens before the cross and receive His gentle renewal.`;
-    } else if (metrics.dominantMood === 'joy') {
-      faceSpiritualDiagnosis = `${displayName}'s bright and warm smile today shines as a living testimony of grace. May the joy of salvation overflow from your heart and bless everyone you encounter today.`;
-    } else if (metrics.dominantMood === 'courage') {
-      faceSpiritualDiagnosis = `There is quiet resolve and vitality in ${displayName}'s eyes today. Just as the Lord walked ahead of Joshua, He goes before you to open a way of faith and victory.`;
-    } else if (metrics.dominantMood === 'wisdom') {
-      faceSpiritualDiagnosis = `${displayName}'s calm and earnest expression reveals a humble heart seeking God’s guidance. As you acknowledge Him in every decision today, He will make your path straight.`;
-    } else if (metrics.dominantMood === 'love') {
-      faceSpiritualDiagnosis = `${displayName}'s gentle and warm countenance carries the fragrance of Christ’s love. May your kind words and thoughtful care bring comfort to those around you today.`;
-    } else {
-      faceSpiritualDiagnosis = `${displayName}'s serene expression reflects the deep shalom that only God can give. May His peace guard your heart and mind throughout this day.`;
-    }
-  } else {
-    if (metrics.dominantMood === 'rest') {
-      faceSpiritualDiagnosis = `오늘 ${displayName}의 얼굴에는 성실하게 오늘을 달려온 수고와 잔잔한 피로가 엿보입니다. 하나님은 일하시는 당신뿐 아니라 주님 안에서 안식하는 당신을 깊이 사랑하십니다. 이 시간 모든 염려를 십자가 앞에 내려놓고 주님이 주시는 푸른 풀밭의 쉼을 누리시길 기도합니다.`;
-    } else if (metrics.dominantMood === 'joy') {
-      faceSpiritualDiagnosis = `오늘 ${displayName}의 얼굴에 깃든 밝고 환한 미소는 주변을 축복하는 주님의 거룩한 빛입니다! 구원의 기쁨과 감사가 넘치는 오늘, 주신 은혜를 기쁨으로 이웃에게 흘려보내는 복된 통로가 되실 것입니다.`;
-    } else if (metrics.dominantMood === 'courage') {
-      faceSpiritualDiagnosis = `오늘 ${displayName}의 눈빛에는 믿음으로 세상에 맞서 전진하려는 거룩한 담대함과 결단이 빛납니다. 여호수아와 함께하셨던 하나님께서 오늘도 앞서 행하시며 승리의 길을 예비하고 계십니다.`;
-    } else if (metrics.dominantMood === 'wisdom') {
-      faceSpiritualDiagnosis = `오늘 ${displayName}의 차분하고 진지한 표정 속에서 주님의 세미한 음성을 분별하고자 하는 겸손한 지혜가 느껴집니다. 내 명철을 의지하지 않고 범사에 주님을 인정할 때, 하나님께서 친히 당신의 앞길을 인도하실 것입니다.`;
-    } else if (metrics.dominantMood === 'love') {
-      faceSpiritualDiagnosis = `오늘 ${displayName}의 표정에 어린 온화함과 따스함은 예수님의 사랑의 향기를 가득 품고 있습니다. 작은 친절과 온유한 말 한마디로 지친 이웃의 마음을 보듬고 살리는 은혜의 하루가 되시길 축복합니다.`;
-    } else {
-      faceSpiritualDiagnosis = `오늘 ${displayName}의 모습에는 세상이 줄 수 없는 여호와 샬롬의 깊고 고요한 평강이 깃들어 있습니다. 모든 지각에 뛰어난 하나님의 평강이 오늘 하루도 당신의 생각과 마음을 안전하게 지키실 것입니다.`;
-    }
-  }
+  // 3. 매일 달라지는 묵상 질문 3가지
+  const questions = pickDailyQuestions(mood, seed + 7, lang);
 
-  const personalizedPrayerBody =
-    lang === 'en'
-      ? `Loving Father who cherishes ${displayName}, ${picked.prayerBody}`
-      : `${displayName}을(를) 사랑하시는 하나님 아버지, ${lifeStage.stageMessage} ${picked.prayerBody}`;
+  // 4. 매일 달라지는 핵심 미션 & 실천 체크리스트 3가지
+  const action = pickDailyActions(mood, seed + 13, lang);
+
+  // 5. 조합형 현대어 1분 기도문
+  const prayerObj = buildPersonalizedPrayer(
+    displayName,
+    user,
+    lifeStage,
+    mood,
+    localized.verse.keyword,
+    seed + 29,
+    lang
+  );
+
+  // 6. 추천 찬양, 작은 영적 습관, 추천 성경 본문
+  const extras = pickDailyExtras(seed + 41, lang);
 
   const gratitudePrompt =
     lang === 'en'
       ? `Think of 3 blessings God has gifted to ${displayName} today.`
-      : `오늘 ${displayName}의 삶 속에 하나님이 선물해 주신 고마운 일 3가지를 마음에 떠올려보세요.`;
+      : `오늘 ${displayName}의 일상 속에 하나님이 주신 고마운 일 3가지를 떠올려 보세요.`;
 
   return {
     lang,
     user,
     lifeStage,
     todayDateText,
-    todayTheme: picked.themeTitle,
-    themeSubtitle: picked.themeSubtitle,
+    todayTheme: localized.themeTitle,
+    themeSubtitle: localized.themeSubtitle,
     spiritualScore,
-    verse: picked.verse,
+    verse: localized.verse,
     meditation: {
       faceSpiritualDiagnosis,
-      reflectionText: picked.reflectionGuide,
-      questions: picked.reflectionQuestions,
+      reflectionText: localized.reflectionCore,
+      questions,
     },
-    action: {
-      coreMission: picked.actionCore,
-      items: picked.actionItems,
-    },
+    action,
     prayer: {
-      title: picked.prayerTitle,
-      body: personalizedPrayerBody,
-      oneLineConfession: picked.prayerConfession,
+      title: prayerObj.title,
+      body: prayerObj.body,
+      oneLineConfession: localized.confession,
     },
     christianDaily: {
-      recommendedPraise: picked.praise,
+      recommendedPraise: extras.praise,
       gratitudePrompt,
-      spiritualHabit: picked.spiritualHabit,
-      readingSuggestion: picked.readingSuggestion,
+      spiritualHabit: extras.habit,
+      readingSuggestion: extras.reading,
     },
-    bonus: getBonusGraceData(mood, lang),
+    bonus: getBonusGraceData(mood, lang, seed + 53),
     metrics,
     source: 'local-engine',
   };
 }
 
-// Gemini API 연동 (한글 / 영어 지원)
+// Gemini API 연동 (한글 / 영어, 성별/직분/이목구비 반영, 쉬운 현대어 지침)
 export async function generateGeminiBibleResult(
   user: UserProfile,
   metrics: FaceMetrics,
@@ -187,22 +183,27 @@ export async function generateGeminiBibleResult(
   }
 
   const lifeStage = getLifeStageInfo(user.birthDate, lang);
+  const genderLabel = GENDER_LABELS[lang][user.gender || 'male'];
+  const titleLabel = TITLE_LABELS[lang][user.title || '성도'];
+
   const langInstruction =
     lang === 'en'
-      ? 'Respond entirely in natural, warm, reverent English (use public domain WEB/KJV scripture style).'
-      : '모든 내용을 은혜롭고 따뜻한 한국어(개역개정 성경 스타일)로 작성해 주세요.';
+      ? 'Respond entirely in warm, everyday, easy-to-read English (use public domain WEB/KJV scripture style).'
+      : '모든 풀이·묵상·실천·기도문은 "세미한", "소성케", "앙망" 같은 일상에서 잘 안 쓰는 딱딱한 표현을 피하고, 실제 사람들이 매일 쓰는 쉽고 따뜻하고 자연스러운 현대 한국어로 작성해 주세요.';
 
   const scanInfo = metrics.isSkippedScan
-    ? 'Face scan was skipped. Base the reflection purely on user profile, life stage, and today.'
-    : `Expression: ${metrics.expression}, Mood: ${metrics.dominantMood}, Smile: ${metrics.smileScore}/100, Vitality: ${metrics.vitalityScore}/100, Calm: ${metrics.calmScore}/100, Fatigue: ${metrics.fatigueScore}/100`;
+    ? 'Face scan was skipped. Base the reflection purely on name, gender, role, age/life stage, and today.'
+    : `Expression: ${metrics.expression}, Mood: ${metrics.dominantMood}, Smile: ${metrics.smileScore}/100, Vitality: ${metrics.vitalityScore}/100, Calm: ${metrics.calmScore}/100, Fatigue: ${metrics.fatigueScore}/100, Features: ${JSON.stringify(metrics.faceFeatures || {})}`;
 
-  const prompt = `You are a warm, biblically sound Christian devotional mentor for the app "DayBible2U" (데이바이블2U).
+  const prompt = `You are a warm, practical Christian devotional mentor for the app "DayBible2U" (데이바이블2U).
 ${langInstruction}
 
 [User Profile]
 - Name: ${user.name || 'Believer'}
-- Role: ${user.title || '성도'}
+- Gender: ${genderLabel}
+- Role: ${titleLabel}
 - Age: ${lifeStage.age} (${lifeStage.stage})
+- Today: ${getTodayDateText(lang)}
 
 [Context]
 - ${scanInfo}
@@ -214,10 +215,10 @@ Return pure JSON (no markdown fences) with these exact fields:
   "verseReference": "Book Chapter:Verse",
   "testament": "${lang === 'en' ? 'OT or NT' : '구약 또는 신약'}",
   "verseText": "Scripture text",
-  "verseContext": "Brief graceful context (2 sentences)",
+  "verseContext": "Brief easy-to-understand context (2 sentences)",
   "keyword": "Key theme word",
-  "faceDiagnosis": "Warm spiritual encouragement (2-3 sentences)",
-  "reflectionText": "Meditation guide (3 sentences)",
+  "faceDiagnosis": "Warm, personalized encouragement reflecting gender, role, age, and face/state (2-3 sentences)",
+  "reflectionText": "Practical everyday meditation guide (3 sentences)",
   "reflectionQuestions": ["Question 1", "Question 2", "Question 3"],
   "coreMission": "One core action for today",
   "actionItems": [
@@ -226,7 +227,7 @@ Return pure JSON (no markdown fences) with these exact fields:
     {"title": "Action 3", "description": "Detail", "category": "prayer"}
   ],
   "prayerTitle": "1-Minute Prayer title",
-  "prayerBody": "Heartfelt 1-minute prayer ending in Jesus' name, Amen.",
+  "prayerBody": "Heartfelt everyday 1-minute prayer ending in Jesus' name, Amen.",
   "prayerConfession": "One-line faith confession",
   "praiseTitle": "Recommended hymn/praise title",
   "praiseArtist": "Artist or Traditional Hymn",
@@ -243,7 +244,7 @@ Return pure JSON (no markdown fences) with these exact fields:
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.7,
+          temperature: 0.8,
           responseMimeType: 'application/json',
         },
       }),

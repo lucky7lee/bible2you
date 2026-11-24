@@ -6,9 +6,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Allow devices without camera to still install (Skip Scan / Upload Photo supported) -->
+    <!-- Allow devices without camera or portrait lock to still install -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
 
     <application
         android:allowBackup="true"

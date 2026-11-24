@@ -63,6 +63,7 @@ function loadUserProfile(): UserProfile {
       return {
         name: typeof parsed.name === 'string' ? parsed.name : '',
         birthDate: typeof parsed.birthDate === 'string' ? parsed.birthDate : '',
+        gender: parsed.gender === 'female' ? 'female' : 'male',
         title: typeof parsed.title === 'string' ? parsed.title : '성도',
       };
     }
@@ -72,6 +73,7 @@ function loadUserProfile(): UserProfile {
   return {
     name: '',
     birthDate: '',
+    gender: 'male',
     title: '성도',
   };
 }
@@ -302,9 +304,14 @@ export default function App() {
 
   // 스캔없이 진행 (입력한 기본 정보만을 바탕으로 분석)
   const handleSkipScan = useCallback(() => {
-    const profileMetrics = createProfileOnlyMetrics(user.name, user.birthDate);
+    const profileMetrics = createProfileOnlyMetrics(
+      user.name,
+      user.birthDate,
+      user.gender || 'male',
+      user.title || '성도'
+    );
     runGeneration(profileMetrics);
-  }, [user.name, user.birthDate, runGeneration]);
+  }, [user.name, user.birthDate, user.gender, user.title, runGeneration]);
 
   const hasTodayWord = !!todayRecord && todayRecord.dateKey === getLocalDateKey();
 

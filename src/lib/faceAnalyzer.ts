@@ -4,7 +4,13 @@ import {
   NormalizedLandmark,
   Category,
 } from '@mediapipe/tasks-vision';
-import { ExpressionKey, ExpressionType, FaceMetrics, Language } from '../types/bible';
+import {
+  ExpressionKey,
+  ExpressionType,
+  FaceFeatureDetails,
+  FaceMetrics,
+  Language,
+} from '../types/bible';
 import { UI_TEXT } from './i18n';
 
 const WASM_URL =
@@ -227,27 +233,115 @@ export function extractFaceMetrics(
     dominantMood = 'peace';
   }
 
-  // 얼굴에서 읽어낸 은혜의 특징 3가지
+  // 6. 얼굴형 · 눈 · 눈썹 · 코 · 입 · 비율(삼정) 실제 랜드마크 분석
+  const foreheadTop = pt(landmarks[10], w, h);
+  const glabella = pt(landmarks[9], w, h);
+  const noseBase = pt(landmarks[2], w, h);
+  const chinBottom = pt(landmarks[152], w, h);
+  const foreheadL = pt(landmarks[54], w, h);
+  const foreheadR = pt(landmarks[284], w, h);
+  const jawL = pt(landmarks[172], w, h);
+  const jawR = pt(landmarks[397], w, h);
+  const noseWingL = pt(landmarks[98], w, h);
+  const noseWingR = pt(landmarks[327], w, h);
+
+  const cheekWidth = Math.max(1, dist(cheekL, cheekR));
+  const faceHeight = Math.max(1, dist(foreheadTop, chinBottom));
+  const whRatio = cheekWidth / faceHeight;
+  const jawToCheek = dist(jawL, jawR) / cheekWidth;
+  const foreheadToCheek = dist(foreheadL, foreheadR) / cheekWidth;
+
+  let faceShapeKey: FaceFeatureDetails['faceShapeKey'] = 'oval';
+  if (whRatio >= 0.86) {
+    faceShapeKey = jawToCheek >= 0.8 ? 'angular' : 'round';
+  } else if (whRatio <= 0.72) {
+    faceShapeKey = 'long';
+  } else if (foreheadToCheek >= 0.86 && jawToCheek <= 0.72) {
+    faceShapeKey = 'heart';
+  } else if (jawToCheek >= 0.82) {
+    faceShapeKey = 'angular';
+  }
+
+  let eyeShapeKey: FaceFeatureDetails['eyeShapeKey'] = 'gentle';
+  if (smileScore >= 68) {
+    eyeShapeKey = 'smiling';
+  } else if (vitalityScore >= 76) {
+    eyeShapeKey = 'bright';
+  } else if (browDown > 0.22 || calmScore >= 78) {
+    eyeShapeKey = 'focused';
+  }
+
+  const browInnerL = pt(landmarks[107], w, h);
+  const browMidL = pt(landmarks[105], w, h);
+  const browOuterL = pt(landmarks[46], w, h);
+  const browArchLift = ((browInnerL.y + browOuterL.y) / 2 - browMidL.y) / faceHeight;
+  let eyebrowShapeKey: FaceFeatureDetails['eyebrowShapeKey'] = 'soft';
+  if (browArchLift > 0.025) {
+    eyebrowShapeKey = 'arch';
+  } else if (Math.abs(browArchLift) <= 0.014) {
+    eyebrowShapeKey = 'straight';
+  } else if (browDown > 0.2) {
+    eyebrowShapeKey = 'strong';
+  }
+
+  const noseWidthRatio = dist(noseWingL, noseWingR) / cheekWidth;
+  const noseLenRatio = dist(glabella, noseTip) / faceHeight;
+  let noseShapeKey: FaceFeatureDetails['noseShapeKey'] = 'balanced';
+  if (noseWidthRatio >= 0.255) {
+    noseShapeKey = 'generous';
+  } else if (noseLenRatio >= 0.29) {
+    noseShapeKey = 'defined';
+  }
+
+  let mouthShapeKey: FaceFeatureDetails['mouthShapeKey'] = 'warm';
+  if (smileScore >= 66 || mouthW / cheekWidth >= 0.41) {
+    mouthShapeKey = 'wideSmile';
+  } else if (smileScore < 42) {
+    mouthShapeKey = 'calm';
+  }
+
+  const upperH = dist(foreheadTop, glabella);
+  const middleH = dist(glabella, noseBase);
+  const lowerH = dist(noseBase, chinBottom);
+  const sumH = Math.max(1, upperH + middleH + lowerH);
+  const uPct = upperH / sumH;
+  const mPct = middleH / sumH;
+  const lPct = lowerH / sumH;
+  let balanceKey: FaceFeatureDetails['balanceKey'] = 'harmony';
+  if (uPct >= 0.37) balanceKey = 'forehead';
+  else if (mPct >= 0.38) balanceKey = 'middle';
+  else if (lPct >= 0.37) balanceKey = 'lower';
+
+  const faceFeatures: FaceFeatureDetails = {
+    faceShapeKey,
+    eyeShapeKey,
+    eyebrowShapeKey,
+    noseShapeKey,
+    mouthShapeKey,
+    balanceKey,
+  };
+
+  // 얼굴에서 읽어낸 특징 3가지 (일상적이고 따뜻한 표현)
   const faceHighlights: string[] = [];
 
   if (smileScore >= 60) {
-    faceHighlights.push('주님 안에서 감사가 배어 있는 밝고 따뜻한 미소');
+    faceHighlights.push('감사와 밝은 에너지가 느껴지는 환한 미소');
   } else if (fatigueScore >= 60) {
-    faceHighlights.push('오늘 하루 수고하고 애쓴 흔적이 담긴 정직한 얼굴');
+    faceHighlights.push('오늘 하루 애쓰고 수고한 흔적이 담긴 정직한 표정');
   } else {
-    faceHighlights.push('여호와 샬롬의 잔잔한 평강이 깃든 온화한 입가');
+    faceHighlights.push('편안하고 차분한 분위기가 느껴지는 부드러운 입매');
   }
 
   if (vitalityScore >= 70) {
-    faceHighlights.push('비전과 사명을 향해 빛나는 총명하고 맑은 눈빛');
+    faceHighlights.push('오늘의 일을 잘 해낼 힘이 느껴지는 맑고 또렷한 눈빛');
   } else {
-    faceHighlights.push('주님의 세미한 음성에 귀 기울이는 깊고 차분한 눈빛');
+    faceHighlights.push('마음속 깊은 생각을 차분히 정리하는 고요한 눈빛');
   }
 
   if (symmetryScore >= 80) {
-    faceHighlights.push('하나님의 형상을 닮아 은혜와 조화가 돋보이는 단정한 이목구비');
+    faceHighlights.push('이목구비의 균형이 안정적으로 잡힌 단정한 인상');
   } else {
-    faceHighlights.push('삶의 진실함과 고백이 담긴 자연스럽고 편안한 인상');
+    faceHighlights.push('꾸밈없이 진솔하고 편안한 자연스러운 인상');
   }
 
   return {
@@ -259,6 +353,7 @@ export function extractFaceMetrics(
     expression,
     expressionKey,
     faceHighlights,
+    faceFeatures,
     dominantMood,
     capturedAt: new Date().toISOString(),
     snapshotDataUrl,
@@ -462,10 +557,18 @@ export function createDemoFaceMetrics(): FaceMetrics {
   };
 }
 
-// 스캔없이 진행: 입력한 이름·생년월일·오늘 날짜만을 바탕으로 결정론적 분석 메트릭 생성
-export function createProfileOnlyMetrics(name: string, birthDate: string): FaceMetrics {
-  const todayYMD = new Date().toISOString().slice(0, 10);
-  const seedStr = `${name.trim()}_${birthDate.trim()}_${todayYMD}`;
+// 스캔없이 진행: 입력한 이름·성별·직분·생년월일·오늘 날짜(현지 시간)만을 바탕으로 분석 메트릭 생성
+export function createProfileOnlyMetrics(
+  name: string,
+  birthDate: string,
+  gender: string = 'male',
+  title: string = '성도'
+): FaceMetrics {
+  const now = new Date();
+  const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+    now.getDate()
+  ).padStart(2, '0')}`;
+  const seedStr = `${name.trim()}_${gender}_${title}_${birthDate.trim()}_${todayLocal}`;
   let hash = 0;
   for (let i = 0; i < seedStr.length; i++) {
     hash = (hash << 5) - hash + seedStr.charCodeAt(i);
@@ -483,17 +586,16 @@ export function createProfileOnlyMetrics(name: string, birthDate: string): FaceM
   ];
   const dominantMood = moods[absHash % moods.length];
 
-  // 기본 정보 기반의 안정적인 은혜 점수 산출용 지표
-  const smileScore = 72 + (absHash % 20);
-  const vitalityScore = 75 + ((absHash >> 3) % 18);
-  const calmScore = 76 + ((absHash >> 5) % 18);
+  const smileScore = 72 + (absHash % 22);
+  const vitalityScore = 74 + ((absHash >> 3) % 20);
+  const calmScore = 75 + ((absHash >> 5) % 20);
 
   return {
     smileScore,
     vitalityScore,
     symmetryScore: 88,
     calmScore,
-    fatigueScore: dominantMood === 'rest' ? 68 : 25,
+    fatigueScore: dominantMood === 'rest' ? 68 : 24,
     expression: '기본 정보 맞춤 묵상',
     expressionKey: 'skipped',
     faceHighlights: [],

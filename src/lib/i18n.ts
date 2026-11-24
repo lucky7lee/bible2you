@@ -1,6 +1,23 @@
-import { ChristianTitle, ExpressionKey, Language } from '../types/bible';
+import { ChristianTitle, ExpressionKey, Gender, Language } from '../types/bible';
 
 const LANG_STORAGE_KEY = 'daybible2u_lang_v1';
+
+// 성별에 따라 달라지는 직분 선택 목록
+export const TITLES_BY_GENDER: Record<Gender, ChristianTitle[]> = {
+  male: ['성도', '청년', '형제', '집사', '안수집사', '장로', '목회자'],
+  female: ['성도', '청년', '자매', '집사', '권사', '사모', '목회자'],
+};
+
+export const GENDER_LABELS: Record<Language, Record<Gender, string>> = {
+  ko: {
+    male: '남성',
+    female: '여성',
+  },
+  en: {
+    male: 'Male',
+    female: 'Female',
+  },
+};
 
 // 기기 언어 확인: 한국어(ko)이면 'ko', 그 외 모든 언어는 'en'
 export function detectInitialLanguage(): Language {
@@ -41,8 +58,10 @@ export const TITLE_LABELS: Record<Language, Record<ChristianTitle, string>> = {
     형제: '형제',
     자매: '자매',
     집사: '집사',
+    안수집사: '안수집사',
     권사: '권사',
     장로: '장로',
+    사모: '사모',
     목회자: '목회자',
   },
   en: {
@@ -51,8 +70,10 @@ export const TITLE_LABELS: Record<Language, Record<ChristianTitle, string>> = {
     형제: 'Brother',
     자매: 'Sister',
     집사: 'Deacon',
+    안수집사: 'Ordained Deacon',
     권사: 'Deaconess',
     장로: 'Elder',
+    사모: "Pastor's Wife",
     목회자: 'Pastor',
   },
 };
@@ -88,6 +109,7 @@ export const UI_TEXT = {
     landingSubtitleBold: '말씀·묵상·1분 기도',
     nameLabel: '성명',
     namePlaceholder: '예: 홍길동',
+    genderLabel: '성별',
     titleLabel: '직분',
     birthLabel: '생년월일 (양력)',
     yearPlaceholder: '출생년도',
@@ -232,6 +254,7 @@ export const UI_TEXT = {
     landingSubtitleBold: '1-Min Prayer for You',
     nameLabel: 'Name',
     namePlaceholder: 'e.g. David',
+    genderLabel: 'Gender',
     titleLabel: 'Role',
     birthLabel: 'Birth Date',
     yearPlaceholder: 'Year',

@@ -10,9 +10,9 @@ import {
   Sparkle,
   Loader2,
 } from 'lucide-react';
-import { ChristianTitle, Language, UserProfile } from '../types/bible';
+import { ChristianTitle, Gender, Language, UserProfile } from '../types/bible';
 import { getTodayDateText } from '../lib/bibleEngine';
-import { TITLE_LABELS, UI_TEXT } from '../lib/i18n';
+import { GENDER_LABELS, TITLE_LABELS, TITLES_BY_GENDER, UI_TEXT } from '../lib/i18n';
 
 interface LandingViewProps {
   lang: Language;
@@ -30,17 +30,6 @@ interface LandingViewProps {
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: CURRENT_YEAR - 1920 + 1 }, (_, i) => CURRENT_YEAR - i);
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
-
-const CHRISTIAN_TITLES: ChristianTitle[] = [
-  '성도',
-  '청년',
-  '형제',
-  '자매',
-  '집사',
-  '권사',
-  '장로',
-  '목회자',
-];
 
 export const LandingView: React.FC<LandingViewProps> = ({
   lang,
@@ -83,9 +72,20 @@ export const LandingView: React.FC<LandingViewProps> = ({
       : 31;
   const days = Array.from({ length: maxDays }, (_, i) => i + 1);
 
+  const currentGender: Gender = user.gender === 'female' ? 'female' : 'male';
+  const availableTitles = TITLES_BY_GENDER[currentGender];
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValidationError(null);
     onChangeUser({ ...user, name: e.target.value });
+  };
+
+  const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextGender = (e.target.value === 'female' ? 'female' : 'male') as Gender;
+    const nextTitles = TITLES_BY_GENDER[nextGender];
+    const currentTitle = user.title || '성도';
+    const nextTitle = nextTitles.includes(currentTitle) ? currentTitle : '성도';
+    onChangeUser({ ...user, gender: nextGender, title: nextTitle });
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -192,9 +192,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
       {/* 2. 사용자 정보 입력 카드 */}
       <section className="input-card">
-        {/* 이름 & 직분 */}
+        {/* 이름 · 성별 · 직분 */}
         <div className="form-group-row">
-          <div className="form-group" style={{ flex: 1.5 }}>
+          <div className="form-group" style={{ flex: 1.3 }}>
             <label className="form-label" htmlFor="user-name">
               <User size={13} />
               <span>{t.nameLabel}</span>
@@ -211,7 +211,22 @@ export const LandingView: React.FC<LandingViewProps> = ({
             />
           </div>
 
-          <div className="form-group" style={{ flex: 1 }}>
+          <div className="form-group" style={{ flex: 0.85 }}>
+            <label className="form-label" htmlFor="user-gender">
+              <span>{t.genderLabel}</span>
+            </label>
+            <select
+              id="user-gender"
+              className="select-input"
+              value={currentGender}
+              onChange={handleGenderChange}
+            >
+              <option value="male">{GENDER_LABELS[lang].male}</option>
+              <option value="female">{GENDER_LABELS[lang].female}</option>
+            </select>
+          </div>
+
+          <div className="form-group" style={{ flex: 1.05 }}>
             <label className="form-label" htmlFor="user-title">
               <Heart size={13} />
               <span>{t.titleLabel}</span>
@@ -219,10 +234,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <select
               id="user-title"
               className="select-input"
-              value={user.title || '성도'}
+              value={availableTitles.includes(user.title || '성도') ? user.title || '성도' : '성도'}
               onChange={handleTitleChange}
             >
-              {CHRISTIAN_TITLES.map((titleKey) => (
+              {availableTitles.map((titleKey) => (
                 <option key={titleKey} value={titleKey}>
                   {TITLE_LABELS[lang][titleKey]}
                 </option>
