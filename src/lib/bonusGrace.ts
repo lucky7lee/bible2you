@@ -1,4 +1,5 @@
 import { BonusGraceData, FaceMetrics, Language } from '../types/bible';
+import { EXTRA_BONUS_EN, EXTRA_BONUS_KO } from './bonusGraceExtra';
 
 const BONUS_KO: Record<FaceMetrics['dominantMood'], BonusGraceData> = {
   rest: {
@@ -285,7 +286,8 @@ export function getBonusGraceData(
   lang: Language,
   seed: number = 0
 ): BonusGraceData {
-  const table = lang === 'en' ? BONUS_EN : BONUS_KO;
+  const baseTable = lang === 'en' ? BONUS_EN : BONUS_KO;
+  const extraTable = lang === 'en' ? EXTRA_BONUS_EN : EXTRA_BONUS_KO;
   const moods: Array<FaceMetrics['dominantMood']> = [
     'rest',
     'joy',
@@ -294,25 +296,46 @@ export function getBonusGraceData(
     'love',
     'peace',
   ];
-  const baseIdx = Math.max(0, moods.indexOf(mood));
-  // 날짜 시드에 따라 기본 테마 또는 인접 테마에서 연관 말씀·지혜·저녁 기도를 다채롭게 교차 조합
-  const primary = table[moods[baseIdx]] || table.peace;
-  const secondary = table[moods[(baseIdx + (seed % 5) + 1) % moods.length]] || primary;
-  const tertiary = table[moods[(baseIdx + ((seed >> 2) % 5) + 1) % moods.length]] || primary;
 
-  if (seed === 0) return primary;
+  // 테마별 5세트 × 6테마 = 총 30세트 (기존 6세트 대비 5배 확장)
+  const moodList = [baseTable[mood] || baseTable.peace, ...(extraTable[mood] || [])];
+  const allSets: BonusGraceData[] = moods.flatMap((m) => [
+    baseTable[m],
+    ...(extraTable[m] || []),
+  ]);
+
+  if (seed === 0) return moodList[0];
+
+  // 시드 기반으로 동일 테마 5세트 + 전체 30세트에서 다층 교차 조합 (수십만 가지 조합!)
+  const pickFromMood = (offset: number): BonusGraceData =>
+    moodList[Math.abs(seed + offset) % moodList.length];
+  const pickFromAll = (shift: number, mult: number): BonusGraceData =>
+    allSets[Math.abs((seed >>> shift) * mult + offsetPrime(shift)) % allSets.length];
+
+  const verseSrc = seed % 3 === 0 ? pickFromAll(1, 7) : pickFromMood(0);
+  const figureSrc = pickFromMood(1);
+  const relSrc = (seed >>> 2) % 2 === 0 ? pickFromMood(2) : pickFromAll(3, 11);
+  const workSrc = (seed >>> 3) % 2 === 0 ? pickFromMood(3) : pickFromAll(4, 13);
+  const gratSrc = (seed >>> 1) % 3 === 0 ? pickFromAll(5, 17) : pickFromMood(4);
+  const tipSrc = (seed >>> 4) % 2 === 0 ? pickFromMood(2) : pickFromAll(2, 19);
+  const prayerSrc = (seed >>> 5) % 3 === 0 ? pickFromAll(6, 23) : pickFromMood(3);
 
   return {
-    companionVerseRef: (seed % 2 === 0 ? primary : secondary).companionVerseRef,
-    companionVerseText: (seed % 2 === 0 ? primary : secondary).companionVerseText,
-    biblicalFigureName: (seed % 2 === 0 ? primary : secondary).biblicalFigureName,
-    biblicalFigureStory: (seed % 2 === 0 ? primary : secondary).biblicalFigureStory,
-    relationshipWisdom: ((seed >> 1) % 2 === 0 ? primary : tertiary).relationshipWisdom,
-    workWisdom: ((seed >> 2) % 2 === 0 ? primary : secondary).workWisdom,
-    gratitudeSeeds: ((seed >> 3) % 2 === 0 ? primary : tertiary).gratitudeSeeds,
-    peaceTip: ((seed >> 1) % 2 === 0 ? secondary : primary).peaceTip,
-    eveningPrayerTitle: ((seed >> 4) % 2 === 0 ? primary : secondary).eveningPrayerTitle,
-    eveningPrayerBody: ((seed >> 4) % 2 === 0 ? primary : secondary).eveningPrayerBody,
-    eveningBlessingLine: ((seed >> 4) % 2 === 0 ? primary : secondary).eveningBlessingLine,
+    companionVerseRef: verseSrc.companionVerseRef,
+    companionVerseText: verseSrc.companionVerseText,
+    biblicalFigureName: figureSrc.biblicalFigureName,
+    biblicalFigureStory: figureSrc.biblicalFigureStory,
+    relationshipWisdom: relSrc.relationshipWisdom,
+    workWisdom: workSrc.workWisdom,
+    gratitudeSeeds: gratSrc.gratitudeSeeds,
+    peaceTip: tipSrc.peaceTip,
+    eveningPrayerTitle: prayerSrc.eveningPrayerTitle,
+    eveningPrayerBody: prayerSrc.eveningPrayerBody,
+    eveningBlessingLine: prayerSrc.eveningBlessingLine,
   };
+}
+
+function offsetPrime(n: number): number {
+  const primes = [3, 7, 13, 29, 41, 59, 73];
+  return primes[n % primes.length];
 }

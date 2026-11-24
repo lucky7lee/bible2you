@@ -1,26 +1,13 @@
-import { BibleVerse, FaceMetrics } from '../types/bible';
+import { FaceMetrics } from '../types/bible';
+import { CatalogVerseEntry, expandCompactVerse } from './verseTypes';
+import { EXTRA_REST_JOY_VERSES } from './versesRestJoy';
+import { EXTRA_COURAGE_WISDOM_VERSES } from './versesCourageWisdom';
+import { EXTRA_LOVE_PEACE_VERSES } from './versesLovePeace';
 
-export interface CatalogVerseEntry {
-  id: string;
-  mood: FaceMetrics['dominantMood'];
-  ko: {
-    themeTitle: string;
-    themeSubtitle: string;
-    verse: BibleVerse;
-    reflectionCore: string;
-    confession: string;
-  };
-  en: {
-    themeTitle: string;
-    themeSubtitle: string;
-    verse: BibleVerse;
-    reflectionCore: string;
-    confession: string;
-  };
-}
+export type { CatalogVerseEntry };
 
-// 6대 테마 × 6개 구절 = 총 36개 성경 말씀 라이브러리 (한글 + 영어 Public Domain WEB)
-export const VERSE_CATALOG: CatalogVerseEntry[] = [
+// 6대 테마 × 30개 구절 = 총 180개 성경 말씀 라이브러리 (한글 + 영어 Public Domain WEB)
+const BASE_VERSE_CATALOG: CatalogVerseEntry[] = [
   // ==================== 1. REST (쉼과 회복, 위로) ====================
   {
     id: 'rest-1',
@@ -1400,6 +1387,13 @@ export const VERSE_CATALOG: CatalogVerseEntry[] = [
       confession: 'The God of hope fills me with joy and peace as I trust Him.',
     },
   },
+];
+
+export const VERSE_CATALOG: CatalogVerseEntry[] = [
+  ...BASE_VERSE_CATALOG,
+  ...EXTRA_REST_JOY_VERSES.map(expandCompactVerse),
+  ...EXTRA_COURAGE_WISDOM_VERSES.map(expandCompactVerse),
+  ...EXTRA_LOVE_PEACE_VERSES.map(expandCompactVerse),
 ];
 
 export function getVersesByMood(mood: FaceMetrics['dominantMood']): CatalogVerseEntry[] {
