@@ -19,9 +19,17 @@ import {
   pickDailyVerse,
 } from './personalizer';
 
-// 오늘 날짜 포맷 (한글 / 영어)
+// 오늘 날짜 포맷 (한글 / 영어 / 스페인어)
 export function getTodayDateText(lang: Language = 'ko'): string {
   const now = new Date();
+  if (lang === 'es') {
+    const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const months = [
+      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
+      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+    ];
+    return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  }
   if (lang === 'en') {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const months = [
@@ -42,6 +50,22 @@ export function getTodayDateText(lang: Language = 'ko'): string {
 function formatDisplayName(user: UserProfile, lang: Language): string {
   const rawName = user.name?.trim() || '';
   const titleKey = user.title || '성도';
+  if (lang === 'es') {
+    const esTitle = TITLE_LABELS.es[titleKey] || 'Creyente';
+    if (!rawName) return esTitle;
+    if (
+      titleKey === '목회자' ||
+      titleKey === '장로' ||
+      titleKey === '집사' ||
+      titleKey === '안수집사' ||
+      titleKey === '권사' ||
+      titleKey === '형제' ||
+      titleKey === '자매'
+    ) {
+      return `${esTitle} ${rawName}`;
+    }
+    return rawName;
+  }
   if (lang === 'en') {
     const enTitle = TITLE_LABELS.en[titleKey] || 'Believer';
     if (!rawName) return enTitle;
@@ -83,9 +107,9 @@ export function generateLocalBibleResult(
   }_${todayKey}_${mood}_${featureSig}`;
   const seed = hashString(seedStr);
 
-  // 1. 최근 14일 중복을 피해서 36개 성경 말씀 중 오늘의 구절 선택
+  // 1. 최근 60일 중복을 피해서 180개 성경 말씀 중 오늘의 구절 선택
   const pickedEntry = pickDailyVerse(mood, seed, todayKey);
-  const localized = pickedEntry[lang];
+  const localized = (lang === 'es' ? pickedEntry.es : pickedEntry[lang]) || pickedEntry.en;
 
   // 은혜 지수 (0~100)
   const baseSpiritual = Math.round(
@@ -132,7 +156,9 @@ export function generateLocalBibleResult(
   const extras = pickDailyExtras(seed + 41, lang);
 
   const gratitudePrompt =
-    lang === 'en'
+    lang === 'es'
+      ? `Piensa en 3 bendiciones que Dios ha regalado a ${displayName} hoy.`
+      : lang === 'en'
       ? `Think of 3 blessings God has gifted to ${displayName} today.`
       : `오늘 ${displayName}의 일상 속에 하나님이 주신 고마운 일 3가지를 떠올려 보세요.`;
 
@@ -187,7 +213,9 @@ export async function generateGeminiBibleResult(
   const titleLabel = TITLE_LABELS[lang][user.title || '성도'];
 
   const langInstruction =
-    lang === 'en'
+    lang === 'es'
+      ? 'Respond entirely in warm, everyday, easy-to-read Spanish (use public domain Reina-Valera 1909 scripture style).'
+      : lang === 'en'
       ? 'Respond entirely in warm, everyday, easy-to-read English (use public domain WEB/KJV scripture style).'
       : '모든 풀이·묵상·실천·기도문은 "세미한", "소성케", "앙망" 같은 일상에서 잘 안 쓰는 딱딱한 표현을 피하고, 실제 사람들이 매일 쓰는 쉽고 따뜻하고 자연스러운 현대 한국어로 작성해 주세요.';
 
@@ -213,7 +241,7 @@ Return pure JSON (no markdown fences) with these exact fields:
   "todayTheme": "Theme title",
   "themeSubtitle": "Subtitle",
   "verseReference": "Book Chapter:Verse",
-  "testament": "${lang === 'en' ? 'OT or NT' : '구약 또는 신약'}",
+  "testament": "${lang === 'es' ? 'AT o NT' : lang === 'en' ? 'OT or NT' : '구약 또는 신약'}",
   "verseText": "Scripture text",
   "verseContext": "Brief easy-to-understand context (2 sentences)",
   "keyword": "Key theme word",

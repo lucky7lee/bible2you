@@ -82,14 +82,16 @@ html, body {
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  min-width: 0;
   cursor: pointer;
   user-select: none;
 }
 
 .logo-cross-symbol {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
   border-radius: var(--radius-sm);
   background: rgba(251, 191, 36, 0.12);
   border: 1px solid var(--gold-border);
@@ -101,7 +103,7 @@ html, body {
 .brand-title {
   font-family: var(--font-cinzel), var(--font-serif);
   font-weight: 700;
-  font-size: 15.5px;
+  font-size: 14.5px;
   letter-spacing: -0.3px;
   color: #ffffff;
   white-space: nowrap;
@@ -110,11 +112,11 @@ html, body {
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
-/* 한글 / ENG 언어 선택 세그먼트 버튼 */
+/* 한글 / ENG / ESP 언어 선택 세그먼트 버튼 */
 .lang-toggle-group {
   display: inline-flex;
   align-items: center;
@@ -122,7 +124,7 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-full);
   padding: 2px;
-  gap: 2px;
+  gap: 1px;
 }
 
 .lang-toggle-btn {
@@ -130,9 +132,10 @@ html, body {
   background: transparent;
   color: var(--text-muted);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
-  padding: 4px 8px;
+  letter-spacing: -0.2px;
+  padding: 4px 7px;
   border-radius: var(--radius-full);
   cursor: pointer;
   white-space: nowrap;
@@ -252,13 +255,14 @@ html, body {
 
 .form-group-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0;
 }
 
 .form-label {
@@ -425,19 +429,22 @@ html, body {
 
 .secondary-action-button,
 .demo-action-button {
-  height: 42px;
-  padding: 0 8px;
+  min-height: 42px;
+  padding: 7px 6px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-main);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  line-height: 1.2;
   gap: 5px;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: keep-all;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -892,6 +899,12 @@ html, body {
   gap: 5px;
 }
 
+html[lang='es'] .quick-nav-strip,
+html[lang='en'] .quick-nav-strip {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
 .quick-nav-pill {
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(15, 23, 48, 0.78);
@@ -899,12 +912,28 @@ html, body {
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
-  padding: 6px 2px;
+  padding: 6px 4px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: center;
   transition: all 0.18s ease;
+}
+
+@media (max-width: 375px) {
+  .brand-title {
+    font-size: 13.5px;
+  }
+  .lang-toggle-btn {
+    font-size: 10px;
+    padding: 4px 5.5px;
+  }
+  .btn-icon-setting {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 .quick-nav-pill:hover {

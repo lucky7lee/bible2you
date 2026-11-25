@@ -17,13 +17,17 @@ export const GENDER_LABELS: Record<Language, Record<Gender, string>> = {
     male: 'Male',
     female: 'Female',
   },
+  es: {
+    male: 'Hombre',
+    female: 'Mujer',
+  },
 };
 
-// 기기 언어 확인: 한국어(ko)이면 'ko', 그 외 모든 언어는 'en'
+// 기기 언어 확인: 한국어(ko) -> 'ko', 스페인어(es) -> 'es', 그 외 모든 언어 -> 'en'
 export function detectInitialLanguage(): Language {
   try {
     const saved = localStorage.getItem(LANG_STORAGE_KEY);
-    if (saved === 'ko' || saved === 'en') {
+    if (saved === 'ko' || saved === 'en' || saved === 'es') {
       return saved;
     }
   } catch {
@@ -31,16 +35,20 @@ export function detectInitialLanguage(): Language {
   }
 
   if (typeof navigator !== 'undefined') {
-    const primaryLang =
+    const primaryLang = (
       (Array.isArray(navigator.languages) && navigator.languages[0]) ||
       navigator.language ||
-      'en';
-    if (primaryLang.toLowerCase().startsWith('ko')) {
+      'en'
+    ).toLowerCase();
+    if (primaryLang.startsWith('ko')) {
       return 'ko';
+    }
+    if (primaryLang.startsWith('es')) {
+      return 'es';
     }
     return 'en';
   }
-  return 'ko';
+  return 'en';
 }
 
 export function saveLanguage(lang: Language): void {
@@ -76,6 +84,18 @@ export const TITLE_LABELS: Record<Language, Record<ChristianTitle, string>> = {
     사모: "Pastor's Wife",
     목회자: 'Pastor',
   },
+  es: {
+    성도: 'Creyente',
+    청년: 'Joven',
+    형제: 'Hermano',
+    자매: 'Hermana',
+    집사: 'Diácono',
+    안수집사: 'Diácono Ord.',
+    권사: 'Diaconisa',
+    장로: 'Anciano',
+    사모: 'Esposa de Pastor',
+    목회자: 'Pastor',
+  },
 };
 
 export const EXPRESSION_LABELS: Record<Language, Record<ExpressionKey, string>> = {
@@ -96,6 +116,15 @@ export const EXPRESSION_LABELS: Record<Language, Record<ExpressionKey, string>> 
     tired: 'Weary · Needs Rest',
     courageous: 'Bold & Determined',
     skipped: 'Profile-Based Word',
+  },
+  es: {
+    peaceful: 'Sonrisa Serena',
+    joyful: 'Alegre y Radiante',
+    calm: 'Calma y Reflexión',
+    focused: 'Enfoque y Firmeza',
+    tired: 'Cansado · Busca Paz',
+    courageous: 'Firme y Valiente',
+    skipped: 'Palabra por Perfil',
   },
 };
 
@@ -388,6 +417,151 @@ export const UI_TEXT = {
     savedBtn: 'Saved!',
 
     // Footer
-    footerSub: 'Scripture: NIV / ESV Style · Walk in Grace Today',
+    footerSub: 'Scripture: World English Bible (Public Domain) · Walk in Grace Today',
+  },
+  es: {
+    appName: 'DayBible2U',
+    appTitlePrefix: 'DayBible',
+    appTitleAccent: '2U',
+    settingsTitle: 'Ajustes',
+    landingSubtitleBefore: 'Palabra Diaria, Meditación y ',
+    landingSubtitleBold: 'Oración de 1 Minuto',
+    nameLabel: 'Nombre',
+    namePlaceholder: 'Ej. Mateo',
+    genderLabel: 'Género',
+    titleLabel: 'Cargo',
+    birthLabel: 'Fecha de nacimiento',
+    yearPlaceholder: 'Año',
+    monthPlaceholder: 'Mes',
+    dayPlaceholder: 'Día',
+    yearSuffix: '',
+    monthSuffix: '',
+    daySuffix: '',
+    errNameRequired: 'Por favor, ingresa tu nombre.',
+    errBirthRequired: 'Por favor, selecciona tu fecha de nacimiento completa.',
+    errPhotoNoFace: 'No se detectó un rostro. Usa una foto clara mirando de frente.',
+    errPhotoLoad: 'No se pudo cargar la imagen.',
+    errPhotoAnalyze: 'Error al analizar la foto.',
+    errGenFail: 'No se pudo generar la palabra de hoy. Inténtalo de nuevo.',
+    scanBtnMain: 'Escanear Rostro Hoy',
+    scanBtnSub: 'Escaneo de 5s para tu versículo diario',
+    viewTodayBtnMain: 'Ver Palabra de Hoy',
+    viewTodayBtnSub: 'Revisa tu versículo y lista de hoy',
+    uploadBtn: 'Subir Foto',
+    uploadingBtn: 'Analizando...',
+    skipScanBtn: 'Sin Escaneo',
+    privacyNote: '100% Privado: tus fotos y video nunca salen de tu dispositivo.',
+    tagWord: 'Palabra Diaria',
+    tagMeditation: 'Meditación',
+    tagAction: 'Acción',
+    tagPrayer: 'Oración 1 Min',
+
+    // Quick Nav Pills
+    nav1: '1.Palabra',
+    nav2: '2.Meditar',
+    nav3: '3.Acción',
+    nav4: '4.Oración',
+    nav5: '5.Alabanza',
+    nav6: '6.Hábito',
+    doneCount: (done: number, total: number) => `${done}/${total} Listo`,
+
+    // CameraScanner
+    backBtn: 'Atrás',
+    switchCamTitle: 'Cambiar cámara',
+    scanHeaderWithUser: (name: string) => `Escaneo de ${name}`,
+    scanHeaderDefault: 'Escaneo Facial',
+    camInitStatus: 'Iniciando cámara y motor facial...',
+    camReadyStatus: 'Esperando rostro...',
+    camNotSupported: 'Cámara no disponible en este navegador. Sube una foto.',
+    camUnknownErr: 'No se pudo iniciar la cámara.',
+    camPrep: 'Cargando...',
+    camFrontalScan: 'Escaneando...',
+    camLookFront: 'Mira de frente',
+    camFindingFace: 'Buscando rostro...',
+    camFrontalMatch: 'Alineado',
+    camGuideCenter: 'Centra tu rostro dentro del círculo',
+    camGuideCloser: 'Acércate un poco más a la cámara',
+    camGuideBack: 'Aléjate ligeramente de la cámara',
+    camGuideTurn: 'Mira directamente hacia la cámara',
+    camGuideDown: 'Baja ligeramente el mentón',
+    camGuideUp: 'Levanta ligeramente la cabeza',
+    camCountdownMsg: (sec: number) => `¡Mantente quieto! Faltan ${sec}s ✨`,
+    camSecLeft: 's',
+    camWaitNote: 'Espera un momento (2-3s)',
+    camErrTitle: 'Cámara no disponible',
+    camErrUploadBtn: 'Tomar / Elegir Foto',
+    camErrSkipBtn: 'Continuar sin escaneo',
+    metricSmile: 'Sonrisa',
+    metricVitality: 'Vitalidad',
+
+    // Generating
+    genTitle: 'Preparando tu Palabra de Gracia Hoy',
+    genDescWithUser: (name: string) => `Reflexionando sobre la etapa y el día de ${name}`,
+    genDescDefault: 'Reflexionando sobre tu perfil y la gracia de hoy',
+    genDescLine2: 'Preparando tu versículo, meditación y oración de 1 minuto.',
+
+    // BibleResult
+    ageText: (age: number) => `${age} años`,
+    graceScoreLabel: 'Gracia',
+    scoreUnit: 'pts',
+    sec1Title: 'La Palabra de Hoy para Ti',
+    sec2Title: 'Meditación y Reflexión',
+    sec3Title: 'Pequeñas Acciones para Hoy',
+    sec5Title: 'Alabanza Recomendada',
+    sec6Title: 'Hábito Espiritual y Lectura',
+    themeLabel: 'Tema:',
+    meaningTitle: 'Luz de la Palabra',
+    meditationGuideTitle: 'Guía de Meditación',
+    meditationQuestionsTitle: '3 Preguntas para Meditar Hoy',
+    coreMissionTag: 'Misión Clave',
+    checklistTip: 'Toca cada acción para marcarla como completada.',
+    confessionLabel: 'Confesión: ',
+    amenBtn: 'Amén (Guardar en el Corazón) 🙏',
+    amenDoneBtn: 'Has respondido Amén 🙏',
+    habitLabel: 'Pequeño Hábito de Hoy',
+    readingLabel: 'Lectura Bíblica Sugerida',
+
+    // Rewarded Ad & Bonus Sections (7~10)
+    rewardCardBadge: 'GRACIA ESPECIAL · EXTRA GRATIS',
+    rewardCardTitle: 'Desbloquea 4 Regalos de Gracia Más',
+    rewardCardDesc: 'Mira un breve anuncio para ver un versículo adicional, historia bíblica, sabiduría para el trabajo y relaciones, gratitud y oración nocturna.',
+    rewardBtn: 'Ver Anuncio y Abrir Puntos 7–10',
+    rewardBtnLoading: 'Preparando anuncio...',
+    rewardCancelMsg: 'Completa el anuncio para desbloquear los 4 regalos extra.',
+    rewardUnlockedBanner: '✨ ¡4 Regalos de Gracia (Puntos 7–10) Desbloqueados!',
+    sec7Title: 'Versículo Adicional e Historia Bíblica',
+    sec8Title: 'Sabiduría para Relaciones y Trabajo',
+    sec9Title: '3 Motivos de Gratitud y Calma',
+    sec10Title: 'Oración de Bendición Nocturna',
+    companionVerseLabel: 'Versículo Complementario',
+    biblicalFigureLabel: 'Personaje Bíblico de Hoy',
+    relationWisdomLabel: 'Relaciones',
+    workWisdomLabel: 'Trabajo y Estudio',
+    gratitudeSeedsLabel: '3 Semillas de Gratitud Hoy',
+    peaceTipLabel: 'Pausa de Paz de 10 Segundos',
+    eveningBlessingLabel: 'Bendición Nocturna: ',
+
+    shareBtn: 'Copiar y Compartir Palabra y Oración',
+    shareCopiedBtn: '¡Copiado al portapapeles!',
+    copyFailAlert: 'No se pudo copiar al portapapeles.',
+    homeBtn: 'Inicio',
+    rescanBtn: 'Escanear de Nuevo',
+
+    // SettingsModal
+    settingsHeader: 'Ajustes de Reflexión IA',
+    engineLabel: 'Motor',
+    engineLocalTitle: 'Motor Local (Recomendado)',
+    engineLocalSub: '100% gratis e inmediato sin clave API',
+    engineGeminiTitle: 'Google Gemini API',
+    engineGeminiSub: 'Oración y meditación personalizadas en vivo',
+    modelLabel: 'Modelo',
+    apiKeyNote: 'Tu clave API se guarda de forma segura solo en tu dispositivo.',
+    getApiKeyLink: 'Obtener clave gratis en Google AI Studio ↗',
+    cancelBtn: 'Cancelar',
+    saveBtn: 'Guardar',
+    savedBtn: '¡Guardado!',
+
+    // Footer
+    footerSub: 'Escritura: Reina-Valera 1909 (Dominio Público) · Camina en Gracia Hoy',
   },
 } as const;

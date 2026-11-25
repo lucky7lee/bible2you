@@ -708,6 +708,50 @@ export function getLifeStageInfo(
     }
   }
 
+  if (lang === 'es') {
+    if (age <= 19) {
+      return {
+        stage: 'Juventud',
+        age,
+        stageMessage:
+          'Estás en una etapa preciosa de sueños y crecimiento. Que crezcas en sabiduría y gracia delante de Dios y de las personas.',
+        prayerFocus: 'Sabiduría en los estudios, identidad firme en Cristo, buenas amistades',
+      };
+    } else if (age <= 35) {
+      return {
+        stage: 'Joven Adulto',
+        age,
+        stageMessage:
+          'Estás abriendo camino con fe y energía. Que Dios guíe tu vocación, tus relaciones y cada sueño valiente.',
+        prayerFocus: 'Dirección laboral, relaciones sanas, fe valiente y propósito',
+      };
+    } else if (age <= 50) {
+      return {
+        stage: 'Adulto',
+        age,
+        stageMessage:
+          'Eres un pilar firme de fe para tu familia y tu trabajo. Que el Señor bendiga abundantemente la obra de tus manos.',
+        prayerFocus: 'Armonía en el hogar, integridad en el trabajo, transmitir la fe',
+      };
+    } else if (age <= 65) {
+      return {
+        stage: 'Madurez',
+        age,
+        stageMessage:
+          'Vives una temporada madura de sabiduría y frutos. Que seas un canal de gracia y consuelo para quienes te rodean.',
+        prayerFocus: 'Fortaleza física y espiritual, liderazgo sabio, bendecir a otros',
+      };
+    } else {
+      return {
+        stage: 'Mayor',
+        age,
+        stageMessage:
+          'Tu vida es una corona de fidelidad y testimonio vivo. Que disfrutes fuerzas renovadas y gratitud abundante cada día.',
+        prayerFocus: 'Gratitud de por vida, esperanza eterna, salud y bendición familiar',
+      };
+    }
+  }
+
   if (lang === 'en') {
     if (age <= 19) {
       return {

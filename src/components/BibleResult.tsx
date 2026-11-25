@@ -172,7 +172,11 @@ export const BibleResult: React.FC<BibleResultProps> = ({
 
   const titleKey = user.title || '성도';
   const displayName =
-    lang === 'en'
+    lang === 'es'
+      ? user.name?.trim()
+        ? `${user.name.trim()} (${TITLE_LABELS.es[titleKey]})`
+        : TITLE_LABELS.es[titleKey]
+      : lang === 'en'
       ? user.name?.trim()
         ? `${user.name.trim()} (${TITLE_LABELS.en[titleKey]})`
         : TITLE_LABELS.en[titleKey]
@@ -184,6 +188,8 @@ export const BibleResult: React.FC<BibleResultProps> = ({
     ? EXPRESSION_LABELS[lang][metrics.expressionKey]
     : metrics.isSkippedScan
     ? EXPRESSION_LABELS[lang].skipped
+    : lang === 'es'
+    ? EXPRESSION_LABELS.es.peaceful
     : lang === 'en'
     ? EXPRESSION_LABELS.en.peaceful
     : metrics.expression;
@@ -191,7 +197,34 @@ export const BibleResult: React.FC<BibleResultProps> = ({
   // 전체 말씀 및 기도문 텍스트 클립보드 복사
   const handleCopyShare = async () => {
     const text =
-      lang === 'en'
+      lang === 'es'
+        ? `[${t.appName}]
+Palabra y Oración de Hoy para ${displayName}
+
+1. ${t.sec1Title}
+📖 ${verse.reference}
+"${verse.text}"
+
+2. ${t.sec2Title}
+${meditation.reflectionText}
+
+3. ${t.sec3Title}
+${action.items.map((it, i) => `${i + 1}) ${it.title}: ${it.description}`).join('\n')}
+
+4. ${prayer.title}
+${prayer.body}
+(${t.confessionLabel}"${prayer.oneLineConfession}")
+
+5. ${t.sec5Title}
+🎵 ${christianDaily.recommendedPraise.title} (${christianDaily.recommendedPraise.artist})
+"${christianDaily.recommendedPraise.lyricSnippet}"
+
+6. ${t.sec6Title}
+🌿 ${christianDaily.spiritualHabit}
+📖 ${t.readingLabel}: ${christianDaily.readingSuggestion}
+
+- ${t.appName}: https://lucky7lee.github.io/bible2you/`
+        : lang === 'en'
         ? `[${t.appName}]
 Today's Word & Prayer for ${displayName}
 

@@ -35,6 +35,22 @@ import {
   READING_POOL_EN,
   READING_POOL_KO,
 } from './poolsExtras';
+import {
+  ACTION_POOL_ES,
+  CORE_MISSIONS_ES,
+  QUESTIONS_ES,
+} from './poolsQuestionsActionsEs';
+import {
+  FACE_FEATURE_PHRASES_ES,
+  HABIT_POOL_ES,
+  PRAISE_POOL_ES,
+  PRAYER_CLOSINGS_ES,
+  PRAYER_MIDDLES_ES,
+  PRAYER_OPENINGS_ES,
+  PRAYER_TITLES_ES,
+  READING_POOL_ES,
+  ROLE_CONTEXT_ES,
+} from './poolsExtrasEs';
 
 const RECENT_VERSES_KEY = 'daybible2u_recent_verses_v2';
 const ANTI_REPEAT_DAYS = 60;
@@ -298,7 +314,20 @@ export function buildPersonalizedDiagnosis(
   if (metrics.isSkippedScan || !metrics.faceFeatures) {
     // 스캔없이 진행: 이름, 성별, 나이, 직분, 오늘 요일만으로 다채롭게 조합
     const roleMsg =
-      lang === 'en' ? ROLE_CONTEXT_EN[title][gender] : ROLE_CONTEXT_KO[title][gender];
+      lang === 'es'
+        ? ROLE_CONTEXT_ES[title][gender]
+        : lang === 'en'
+        ? ROLE_CONTEXT_EN[title][gender]
+        : ROLE_CONTEXT_KO[title][gender];
+
+    if (lang === 'es') {
+      const openingsEs = [
+        `Hoy, Dios mira con cariño ${roleMsg} en tu etapa de ${lifeStage.stage.toLowerCase()} (${lifeStage.age} años).`,
+        `Pensando en la etapa de ${displayName} (${lifeStage.stage.toLowerCase()}, ${lifeStage.age} años), la Palabra de hoy habla directo a ${roleMsg}.`,
+        `En este nuevo día, el Señor anima con ternura a ${displayName} en ${roleMsg}.`,
+      ];
+      return `${openingsEs[seed % openingsEs.length]} ${lifeStage.stageMessage}`;
+    }
 
     if (lang === 'en') {
       const openings = [
@@ -320,7 +349,55 @@ export function buildPersonalizedDiagnosis(
   // 얼굴 스캔 진행 시: 실제 이목구비(얼굴형, 눈, 눈썹, 코, 입, 균형) + 표정 + 성별/직분 조합!
   const f: FaceFeatureDetails = metrics.faceFeatures;
   const roleMsg =
-    lang === 'en' ? ROLE_CONTEXT_EN[title][gender] : ROLE_CONTEXT_KO[title][gender];
+    lang === 'es'
+      ? ROLE_CONTEXT_ES[title][gender]
+      : lang === 'en'
+      ? ROLE_CONTEXT_EN[title][gender]
+      : ROLE_CONTEXT_KO[title][gender];
+
+  if (lang === 'es') {
+    const p = FACE_FEATURE_PHRASES_ES;
+    const featurePool = [
+      p.faceShape[f.faceShapeKey],
+      p.eyeShape[f.eyeShapeKey],
+      p.eyebrowShape[f.eyebrowShapeKey],
+      p.noseShape[f.noseShapeKey],
+      p.mouthShape[f.mouthShapeKey],
+      p.balance[f.balanceKey],
+    ];
+    const f1 = featurePool[seed % featurePool.length];
+    const f2 = featurePool[(seed + 2) % featurePool.length];
+
+    const moodTailEs: Record<FaceMetrics['dominantMood'], string[]> = {
+      rest: [
+        `Detrás de ${f1} y ${f2}, se nota el cansancio honesto de dar lo mejor de ti. Hoy Dios te invita a pausar y descansar profundamente en Él.`,
+        `Tu escaneo muestra ${f1} junto con ${f2}. Has trabajado con fidelidad en ${roleMsg}; deja que el Señor renueve hoy tu espíritu.`,
+      ],
+      joy: [
+        `Se nota una calidez sincera en ${f1} y ${f2} hoy. Que tu energía luminosa bendiga a quienes te rodean en ${roleMsg}.`,
+        `Con ${f1} y ${f2}, tu expresión refleja alegría y gratitud hoy; comparte ese buen ánimo con tu familia y prójimo.`,
+      ],
+      courage: [
+        `En ${f1} y ${f2} se refleja una serena determinación hoy. Da pasos firmes en ${roleMsg} sabiendo que Dios camina contigo.`,
+        `Hay claridad y firmeza en ${f2} y ${f1}. Confía en que el Señor respalda cada paso valiente que des hoy.`,
+      ],
+      wisdom: [
+        `En ${f1} y ${f2} se percibe un espíritu reflexivo y atento hoy. Invita a Dios a cada decisión importante que enfrentes.`,
+        `Con ${f2} y ${f1}, tienes disposición para un juicio claro hoy; pide sabiduría a Dios con confianza en ${roleMsg}.`,
+      ],
+      love: [
+        `En ${f1} y ${f2} se refleja una bondad cercana hoy. Tus palabras amables pueden traer mucho consuelo en ${roleMsg}.`,
+        `Hay una calidez acogedora en ${f2} y ${f1}. Deja que el amor de Cristo fluya con naturalidad a través de ti hoy.`,
+      ],
+      peace: [
+        `En ${f1} y ${f2} se nota un espíritu sereno y equilibrado hoy. Cuida esa paz mientras caminas en ${roleMsg}.`,
+        `Con ${f1} y ${f2}, la paz tranquila de Dios reposa sobre ti hoy; avanza a un ritmo sereno y confiado.`,
+      ],
+    };
+
+    const optionsEs = moodTailEs[metrics.dominantMood] || moodTailEs.peace;
+    return optionsEs[(seed >> 2) % optionsEs.length];
+  }
 
   if (lang === 'en') {
     const p = FACE_FEATURE_PHRASES_EN;
@@ -418,7 +495,12 @@ export function pickDailyQuestions(
   seed: number,
   lang: Language
 ): string[] {
-  const pool = lang === 'en' ? QUESTIONS_EN[mood] : QUESTIONS_KO[mood];
+  const pool =
+    lang === 'es'
+      ? QUESTIONS_ES[mood]
+      : lang === 'en'
+      ? QUESTIONS_EN[mood]
+      : QUESTIONS_KO[mood];
   const result: string[] = [];
   const used = new Set<number>();
   const stride = (seed % 7) + 3; // 3~9 사이의 서로소 간격으로 매일 다른 조합
@@ -442,10 +524,20 @@ export function pickDailyActions(
   seed: number,
   lang: Language
 ): { coreMission: string; items: DailyActionItem[] } {
-  const missions = lang === 'en' ? CORE_MISSIONS_EN[mood] : CORE_MISSIONS_KO[mood];
+  const missions =
+    lang === 'es'
+      ? CORE_MISSIONS_ES[mood]
+      : lang === 'en'
+      ? CORE_MISSIONS_EN[mood]
+      : CORE_MISSIONS_KO[mood];
   const coreMission = missions[(seed >>> 1) % missions.length];
 
-  const pool = lang === 'en' ? ACTION_POOL_EN : ACTION_POOL_KO;
+  const pool =
+    lang === 'es'
+      ? ACTION_POOL_ES
+      : lang === 'en'
+      ? ACTION_POOL_EN
+      : ACTION_POOL_KO;
   const chosen: DailyActionItem[] = [];
   const usedIdx = new Set<number>();
   const stride = ((seed >>> 3) % 11) + 7; // 7~17 간격으로 매일 새로운 3가지 조합
@@ -475,6 +567,21 @@ export function buildPersonalizedPrayer(
 ): { title: string; body: string } {
   const gender: Gender = user.gender || 'male';
   const title: ChristianTitle = user.title || '성도';
+
+  if (lang === 'es') {
+    const titles = PRAYER_TITLES_ES[mood] || PRAYER_TITLES_ES.peace;
+    const openings = PRAYER_OPENINGS_ES(displayName, lifeStage.stage, lifeStage.age);
+    const rolePrayers = `Bendice ${ROLE_CONTEXT_ES[title][gender]} hoy, y guía cada conversación y responsabilidad.`;
+    const middles = PRAYER_MIDDLES_ES[mood] || PRAYER_MIDDLES_ES.peace;
+    const closings = PRAYER_CLOSINGS_ES(verseKeyword);
+
+    return {
+      title: titles[seed % titles.length],
+      body: `${openings[(seed >>> 1) % openings.length]} ${rolePrayers} ${
+        middles[(seed >>> 3) % middles.length]
+      } ${closings[(seed >>> 5) % closings.length]}`,
+    };
+  }
 
   if (lang === 'en') {
     const titles = PRAYER_TITLES_EN[mood] || PRAYER_TITLES_EN.peace;
@@ -513,9 +620,12 @@ export function pickDailyExtras(seed: number, lang: Language): {
   habit: string;
   reading: string;
 } {
-  const praises = lang === 'en' ? PRAISE_POOL_EN : PRAISE_POOL_KO;
-  const habits = lang === 'en' ? HABIT_POOL_EN : HABIT_POOL_KO;
-  const readings = lang === 'en' ? READING_POOL_EN : READING_POOL_KO;
+  const praises =
+    lang === 'es' ? PRAISE_POOL_ES : lang === 'en' ? PRAISE_POOL_EN : PRAISE_POOL_KO;
+  const habits =
+    lang === 'es' ? HABIT_POOL_ES : lang === 'en' ? HABIT_POOL_EN : HABIT_POOL_KO;
+  const readings =
+    lang === 'es' ? READING_POOL_ES : lang === 'en' ? READING_POOL_EN : READING_POOL_KO;
   return {
     praise: praises[seed % praises.length],
     habit: habits[(seed >>> 2) % habits.length],

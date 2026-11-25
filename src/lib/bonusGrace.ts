@@ -1,5 +1,6 @@
 import { BonusGraceData, FaceMetrics, Language } from '../types/bible';
 import { EXTRA_BONUS_EN, EXTRA_BONUS_KO } from './bonusGraceExtra';
+import { BONUS_ES_ALL } from './bonusGraceSpanish';
 
 const BONUS_KO: Record<FaceMetrics['dominantMood'], BonusGraceData> = {
   rest: {
@@ -297,12 +298,15 @@ export function getBonusGraceData(
     'peace',
   ];
 
-  // 테마별 5세트 × 6테마 = 총 30세트 (기존 6세트 대비 5배 확장)
-  const moodList = [baseTable[mood] || baseTable.peace, ...(extraTable[mood] || [])];
-  const allSets: BonusGraceData[] = moods.flatMap((m) => [
-    baseTable[m],
-    ...(extraTable[m] || []),
-  ]);
+  // 테마별 5세트 × 6테마 = 총 30세트 (기존 6세트 대비 5배 확장, 한/영/스페인어 모두 지원)
+  const moodList =
+    lang === 'es'
+      ? BONUS_ES_ALL[mood] || BONUS_ES_ALL.peace
+      : [baseTable[mood] || baseTable.peace, ...(extraTable[mood] || [])];
+  const allSets: BonusGraceData[] =
+    lang === 'es'
+      ? moods.flatMap((m) => BONUS_ES_ALL[m])
+      : moods.flatMap((m) => [baseTable[m], ...(extraTable[m] || [])]);
 
   if (seed === 0) return moodList[0];
 

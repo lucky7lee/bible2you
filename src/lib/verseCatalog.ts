@@ -1,10 +1,24 @@
 import { FaceMetrics } from '../types/bible';
-import { CatalogVerseEntry, expandCompactVerse } from './verseTypes';
+import {
+  CatalogVerseEntry,
+  expandCompactVerse,
+  expandSpanishVerse,
+  SpanishVerseSeed,
+} from './verseTypes';
 import { EXTRA_REST_JOY_VERSES } from './versesRestJoy';
 import { EXTRA_COURAGE_WISDOM_VERSES } from './versesCourageWisdom';
 import { EXTRA_LOVE_PEACE_VERSES } from './versesLovePeace';
+import { VERSES_ES_PART1 } from './versesEsPart1';
+import { VERSES_ES_PART2 } from './versesEsPart2';
+import { VERSES_ES_PART3 } from './versesEsPart3';
 
 export type { CatalogVerseEntry };
+
+const ALL_ES_VERSES: Record<string, SpanishVerseSeed> = {
+  ...VERSES_ES_PART1,
+  ...VERSES_ES_PART2,
+  ...VERSES_ES_PART3,
+};
 
 // 6대 테마 × 30개 구절 = 총 180개 성경 말씀 라이브러리 (한글 + 영어 Public Domain WEB)
 const BASE_VERSE_CATALOG: CatalogVerseEntry[] = [
@@ -1389,12 +1403,20 @@ const BASE_VERSE_CATALOG: CatalogVerseEntry[] = [
   },
 ];
 
-export const VERSE_CATALOG: CatalogVerseEntry[] = [
+const RAW_VERSE_CATALOG: CatalogVerseEntry[] = [
   ...BASE_VERSE_CATALOG,
   ...EXTRA_REST_JOY_VERSES.map(expandCompactVerse),
   ...EXTRA_COURAGE_WISDOM_VERSES.map(expandCompactVerse),
   ...EXTRA_LOVE_PEACE_VERSES.map(expandCompactVerse),
 ];
+
+export const VERSE_CATALOG: CatalogVerseEntry[] = RAW_VERSE_CATALOG.map((entry) => {
+  const esSeed = ALL_ES_VERSES[entry.id];
+  return {
+    ...entry,
+    es: esSeed ? expandSpanishVerse(esSeed) : entry.en,
+  };
+});
 
 export function getVersesByMood(mood: FaceMetrics['dominantMood']): CatalogVerseEntry[] {
   return VERSE_CATALOG.filter((v) => v.mood === mood);

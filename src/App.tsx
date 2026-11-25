@@ -103,7 +103,9 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang;
     document.title =
-      lang === 'en'
+      lang === 'es'
+        ? 'DayBible2U - Palabra Diaria, Meditación y Oración'
+        : lang === 'en'
         ? 'DayBible2U - Daily Bible Word, Meditation & Prayer'
         : '데이바이블2U - 오늘의 맞춤 성경 말씀 & 묵상·기도';
   }, [lang]);
@@ -334,7 +336,7 @@ export default function App() {
         </div>
 
         <div className="navbar-actions">
-          {/* 설정 버튼 바로 앞쪽: 한글 / ENG 언어 선택 버튼 */}
+          {/* 설정 버튼 바로 앞쪽: 한글 / ENG / ESP 언어 선택 버튼 */}
           <div className="lang-toggle-group" role="group" aria-label="Language">
             <button
               type="button"
@@ -349,6 +351,13 @@ export default function App() {
               onClick={() => handleSelectLanguage('en')}
             >
               ENG
+            </button>
+            <button
+              type="button"
+              className={`lang-toggle-btn ${lang === 'es' ? 'active' : ''}`}
+              onClick={() => handleSelectLanguage('es')}
+            >
+              ESP
             </button>
           </div>
 

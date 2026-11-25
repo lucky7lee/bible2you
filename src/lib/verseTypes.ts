@@ -1,21 +1,49 @@
 import { BibleVerse, FaceMetrics } from '../types/bible';
 
+export interface LocalizedVerseContent {
+  themeTitle: string;
+  themeSubtitle: string;
+  verse: BibleVerse;
+  reflectionCore: string;
+  confession: string;
+}
+
 export interface CatalogVerseEntry {
   id: string;
   mood: FaceMetrics['dominantMood'];
-  ko: {
-    themeTitle: string;
-    themeSubtitle: string;
-    verse: BibleVerse;
-    reflectionCore: string;
-    confession: string;
-  };
-  en: {
-    themeTitle: string;
-    themeSubtitle: string;
-    verse: BibleVerse;
-    reflectionCore: string;
-    confession: string;
+  ko: LocalizedVerseContent;
+  en: LocalizedVerseContent;
+  es?: LocalizedVerseContent;
+}
+
+export interface SpanishVerseSeed {
+  testament: 'AT' | 'NT';
+  ref: string;
+  text: string;
+  theme: string;
+  context: string;
+  reflect: string;
+  keyword: string;
+  confess: string;
+}
+
+export function expandSpanishVerse(s: SpanishVerseSeed): LocalizedVerseContent {
+  const book = s.ref.split(' ')[0] || s.ref;
+  return {
+    themeTitle: s.theme,
+    themeSubtitle: `Un día guiado por ${s.keyword.toLowerCase()}`,
+    verse: {
+      reference: s.ref,
+      testament: s.testament,
+      book,
+      chapter: 1,
+      verseRange: '1',
+      text: s.text,
+      context: s.context,
+      keyword: s.keyword,
+    },
+    reflectionCore: s.reflect,
+    confession: s.confess,
   };
 }
 

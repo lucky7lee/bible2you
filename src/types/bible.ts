@@ -1,4 +1,4 @@
-export type Language = 'ko' | 'en';
+export type Language = 'ko' | 'en' | 'es';
 
 export type Gender = 'male' | 'female';
 
