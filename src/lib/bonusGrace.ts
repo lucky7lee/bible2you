@@ -1,6 +1,17 @@
-import { BonusGraceData, FaceMetrics, Language } from '../types/bible';
+import {
+  BonusGraceData,
+  CreationProvidenceData,
+  FaceMetrics,
+  Language,
+} from '../types/bible';
 import { EXTRA_BONUS_EN, EXTRA_BONUS_KO } from './bonusGraceExtra';
 import { BONUS_ES_ALL } from './bonusGraceSpanish';
+import {
+  EXTRA_NEIGHBOR_LOVE,
+  EXTRA_STEWARDSHIP_WORK,
+  TEMPERAMENT_DEEP_INSIGHT,
+  TIME_RHYTHM_POOLS,
+} from './bonusDeepPools';
 
 const BONUS_KO: Record<FaceMetrics['dominantMood'], BonusGraceData> = {
   rest: {
@@ -285,7 +296,8 @@ const BONUS_EN: Record<FaceMetrics['dominantMood'], BonusGraceData> = {
 export function getBonusGraceData(
   mood: FaceMetrics['dominantMood'],
   lang: Language,
-  seed: number = 0
+  seed: number = 0,
+  providence?: CreationProvidenceData
 ): BonusGraceData {
   const baseTable = lang === 'en' ? BONUS_EN : BONUS_KO;
   const extraTable = lang === 'en' ? EXTRA_BONUS_EN : EXTRA_BONUS_KO;
@@ -298,7 +310,7 @@ export function getBonusGraceData(
     'peace',
   ];
 
-  // 테마별 5세트 × 6테마 = 총 30세트 (기존 6세트 대비 5배 확장, 한/영/스페인어 모두 지원)
+  // 테마별 5세트 × 6테마 = 총 30세트 + 심층 풀(시간대별 3,375조합 × 창조기질 25종 × 이웃사랑/청지기 확장) -> 기존 대비 10배 이상 다층 조합!
   const moodList =
     lang === 'es'
       ? BONUS_ES_ALL[mood] || BONUS_ES_ALL.peace
@@ -308,29 +320,58 @@ export function getBonusGraceData(
       ? moods.flatMap((m) => BONUS_ES_ALL[m])
       : moods.flatMap((m) => [baseTable[m], ...(extraTable[m] || [])]);
 
-  if (seed === 0) return moodList[0];
+  const birthEl = providence?.birthElement || 'wood';
+  const rhythm = providence?.rhythmType || 'harmony';
+  const timePool = TIME_RHYTHM_POOLS[lang];
+  const timeRhythm = {
+    morning: timePool.morning[Math.abs(seed + 3) % timePool.morning.length],
+    afternoon: timePool.afternoon[Math.abs((seed >>> 2) + 7) % timePool.afternoon.length],
+    evening: timePool.evening[Math.abs((seed >>> 4) + 11) % timePool.evening.length],
+  };
+  const temperamentDeepInsight = TEMPERAMENT_DEEP_INSIGHT[lang][birthEl][rhythm];
 
-  // 시드 기반으로 동일 테마 5세트 + 전체 30세트에서 다층 교차 조합 (수십만 가지 조합!)
+  if (seed === 0) {
+    return {
+      ...moodList[0],
+      temperamentDeepInsight,
+      timeRhythm,
+    };
+  }
+
+  // 시드 기반으로 동일 테마 5세트 + 전체 30세트 + 확장 이웃사랑·청지기 풀 교차 조합
   const pickFromMood = (offset: number): BonusGraceData =>
     moodList[Math.abs(seed + offset) % moodList.length];
   const pickFromAll = (shift: number, mult: number): BonusGraceData =>
     allSets[Math.abs((seed >>> shift) * mult + offsetPrime(shift)) % allSets.length];
 
   const verseSrc = seed % 3 === 0 ? pickFromAll(1, 7) : pickFromMood(0);
-  const figureSrc = pickFromMood(1);
+  const figureSrc = (seed >>> 1) % 3 === 0 ? pickFromAll(2, 5) : pickFromMood(1);
   const relSrc = (seed >>> 2) % 2 === 0 ? pickFromMood(2) : pickFromAll(3, 11);
   const workSrc = (seed >>> 3) % 2 === 0 ? pickFromMood(3) : pickFromAll(4, 13);
   const gratSrc = (seed >>> 1) % 3 === 0 ? pickFromAll(5, 17) : pickFromMood(4);
   const tipSrc = (seed >>> 4) % 2 === 0 ? pickFromMood(2) : pickFromAll(2, 19);
   const prayerSrc = (seed >>> 5) % 3 === 0 ? pickFromAll(6, 23) : pickFromMood(3);
 
+  const extraNeighborPool = EXTRA_NEIGHBOR_LOVE[lang];
+  const extraWorkPool = EXTRA_STEWARDSHIP_WORK[lang];
+  const relationshipWisdom =
+    (seed >>> 2) % 2 === 0
+      ? extraNeighborPool[Math.abs(seed + 13) % extraNeighborPool.length]
+      : relSrc.relationshipWisdom;
+  const workWisdom =
+    (seed >>> 3) % 2 === 0
+      ? extraWorkPool[Math.abs((seed >>> 1) + 17) % extraWorkPool.length]
+      : workSrc.workWisdom;
+
   return {
     companionVerseRef: verseSrc.companionVerseRef,
     companionVerseText: verseSrc.companionVerseText,
     biblicalFigureName: figureSrc.biblicalFigureName,
     biblicalFigureStory: figureSrc.biblicalFigureStory,
-    relationshipWisdom: relSrc.relationshipWisdom,
-    workWisdom: workSrc.workWisdom,
+    temperamentDeepInsight,
+    timeRhythm,
+    relationshipWisdom,
+    workWisdom,
     gratitudeSeeds: gratSrc.gratitudeSeeds,
     peaceTip: tipSrc.peaceTip,
     eveningPrayerTitle: prayerSrc.eveningPrayerTitle,

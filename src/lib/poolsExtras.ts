@@ -1,4 +1,5 @@
 import { FaceMetrics, RecommendedPraise } from '../types/bible';
+import { josa } from './koreanJosa';
 
 // =========================================================================
 // 1. 추천 찬양 풀: 60곡 (기존 12~16곡 대비 약 4~5배, 영문은 Public Domain 찬송가)
@@ -562,10 +563,10 @@ export const PRAYER_TITLES_EN: Record<FaceMetrics['dominantMood'], string[]> = {
 
 export const PRAYER_OPENINGS_KO = (displayName: string, stage: string, age: number): string[] => [
   `사랑이 많으신 하나님 아버지, 오늘도 ${displayName}에게 소중한 새 하루를 선물해 주셔서 감사합니다.`,
-  `언제나 곁을 지켜주시는 하나님 아버지, ${displayName}이 오늘 하루를 감사함으로 시작합니다.`,
+  `언제나 곁을 지켜주시는 하나님 아버지, ${josa(displayName, '이가')} 오늘 하루를 감사함으로 시작합니다.`,
   `좋으신 하나님 아버지, ${displayName}의 ${stage}(만 ${age}세)의 날들을 선하게 이끌어 주시니 감사합니다.`,
   `은혜가 풍성하신 주님, 오늘 아침에도 숨 쉬고 걸을 수 있게 지켜주셔서 진심으로 감사합니다.`,
-  `신실하신 하나님 아버지, 어제까지 ${displayName}을 붙들어 주셨듯이 오늘도 함께해 주심을 믿습니다.`,
+  `신실하신 하나님 아버지, 어제까지 ${josa(displayName, '을를')} 붙들어 주셨듯이 오늘도 함께해 주심을 믿습니다.`,
   `따뜻한 목자 되신 주님, 오늘 하루를 주님 손에 올려드리며 기쁨으로 기도를 시작합니다.`,
   `나의 도움이 되시는 하나님, ${displayName}의 마음을 아시고 가장 좋은 것으로 채워주시니 감사합니다.`,
   `자비로우신 하나님 아버지, ${stage}(만 ${age}세)의 귀한 계절 속에 주님과 동행할 수 있어 감사합니다.`,
@@ -749,14 +750,14 @@ export const PRAYER_MIDDLES_EN: Record<FaceMetrics['dominantMood'], string[]> = 
 export const PRAYER_CLOSINGS_KO = (verseKeyword: string): string[] => [
   `오늘 주신 '${verseKeyword}'의 은혜가 하루 종일 삶 속에 살아 움직이게 해주세요. 예수님의 이름으로 기도드립니다. 아멘.`,
   '오늘 하루의 시작부터 끝까지 선하게 지켜주실 주님을 신뢰하며, 예수님의 이름으로 기도드립니다. 아멘.',
-  `주님의 '${verseKeyword}'을 붙들고 기쁨과 평안으로 오늘을 살아가겠습니다. 예수님의 이름으로 기도드립니다. 아멘.`,
+  `주님의 ${josa(`'${verseKeyword}'`, '을를')} 붙들고 기쁨과 평안으로 오늘을 살아가겠습니다. 예수님의 이름으로 기도드립니다. 아멘.`,
   '언제나 가장 좋은 길로 인도하시는 하나님께 감사드리며, 예수님의 이름으로 기도드립니다. 아멘.',
   `오늘 만나는 모든 이들에게 '${verseKeyword}'의 따뜻한 향기가 전해지게 하옵소서. 예수님의 이름으로 기도드립니다. 아멘.`,
   '나의 힘과 도움이 되시는 주님만 의지하며, 예수님의 이름으로 감사히 기도드립니다. 아멘.',
   `하루가 저물 때 '${verseKeyword}'의 은혜를 감사로 고백하게 하옵소서. 예수님의 이름으로 기도드립니다. 아멘.`,
   '가정과 일터, 사랑하는 모든 이들을 주님 손에 맡겨드리며 예수님의 이름으로 기도드립니다. 아멘.',
   '오늘도 나와 동행하시는 주님을 찬양하며, 예수님의 이름으로 기도드립니다. 아멘.',
-  `내 생각보다 크신 주님의 '${verseKeyword}'을 기대하며, 예수님의 이름으로 기도드립니다. 아멘.`,
+  `내 생각보다 크신 주님의 ${josa(`'${verseKeyword}'`, '을를')} 기대하며, 예수님의 이름으로 기도드립니다. 아멘.`,
 ];
 
 export const PRAYER_CLOSINGS_EN = (verseKeyword: string): string[] => [

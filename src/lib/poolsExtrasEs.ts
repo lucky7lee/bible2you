@@ -31,7 +31,7 @@ export const PRAISE_POOL_ES: RecommendedPraise[] = [
   { title: 'Cuenta las Bendiciones', artist: 'Himno Tradicional', lyricSnippet: 'Nombrando uno a uno los muchos dones de Dios.', theme: 'Gratitud' },
   { title: 'Obedecer y Confiar', artist: 'Himno Tradicional', lyricSnippet: 'Caminando con alegría en fidelidad sencilla cada día.', theme: 'Fidelidad' },
   { title: 'Mi Fe Espera en Ti', artist: 'Himno Tradicional', lyricSnippet: 'Mirando a Cristo para recibir fuerza y gracia diaria.', theme: 'Fe' },
-  { title: 'Él Me Guará', artist: 'Himno Tradicional', lyricSnippet: 'Descansando en el consuelo de la mano que nos guía.', theme: 'Guía' },
+  { title: 'Él Me Guiará', artist: 'Himno Tradicional', lyricSnippet: 'Descansando en el consuelo de la mano que nos guía.', theme: 'Guía' },
   { title: 'Jehová Es Mi Pastor', artist: 'Himno Tradicional', lyricSnippet: 'Cantando la promesa de cuidado y reposo del Salmo 23.', theme: 'Descanso' },
   { title: 'Alabad al Gran Rey', artist: 'Himno Tradicional', lyricSnippet: 'Alabando a Dios por Su protección y salud constante.', theme: 'Alabanza' },
   { title: 'Por la Belleza de la Tierra', artist: 'Himno Tradicional', lyricSnippet: 'Dando gracias por la familia, amigos y creación.', theme: 'Gratitud' },

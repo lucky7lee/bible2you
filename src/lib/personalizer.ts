@@ -10,6 +10,7 @@ import {
   UserProfile,
 } from '../types/bible';
 import { getLocalDateKey } from './todayStorage';
+import { josa } from './koreanJosa';
 import { CatalogVerseEntry, VERSE_CATALOG } from './verseCatalog';
 import {
   ACTION_POOL_EN,
@@ -339,9 +340,9 @@ export function buildPersonalizedDiagnosis(
     }
 
     const openingsKo = [
-      `오늘 ${displayName}의 소중한 나이(${lifeStage.stage}, 만 ${lifeStage.age}세)와 ${roleMsg}을 하나님께서 따뜻하게 지켜보고 계십니다.`,
+      `오늘 ${displayName}의 소중한 나이(${lifeStage.stage}, 만 ${lifeStage.age}세)와 ${josa(roleMsg, '을를')} 하나님께서 따뜻하게 지켜보고 계십니다.`,
       `새로운 하루를 여는 ${displayName}(${lifeStage.stage}, 만 ${lifeStage.age}세)의 ${roleMsg} 위에 주님이 꼭 필요한 말씀을 보내주셨습니다.`,
-      `${displayName}이 오늘 살아가는 ${lifeStage.stage}(만 ${lifeStage.age}세)의 자리와 ${roleMsg}을 응원하며 오늘의 말씀을 준비했습니다.`,
+      `${josa(displayName, '이가')} 오늘 살아가는 ${lifeStage.stage}(만 ${lifeStage.age}세)의 자리와 ${josa(roleMsg, '을를')} 응원하며 오늘의 말씀을 준비했습니다.`,
     ];
     return `${openingsKo[seed % openingsKo.length]} ${lifeStage.stageMessage}`;
   }
@@ -458,28 +459,28 @@ export function buildPersonalizedDiagnosis(
 
   const moodTailKo: Record<FaceMetrics['dominantMood'], string[]> = {
     rest: [
-      `오늘 ${displayName}의 ${f1}과 ${f2} 속에 성실하게 애써온 피로가 살짝 비칩니다. ${roleMsg}을 잘 감당하시느라 수고가 많으셨어요. 오늘은 무리하지 말고 주님 안에서 잠깐 숨을 고르며 편안히 쉬어가세요.`,
-      `스캔된 ${displayName}의 ${f2}에서 요즘 마음과 몸이 조금 지쳐 있음이 느껴집니다. ${f1}이 주는 편안함처럼, 오늘만큼은 무거운 짐을 주님께 내려놓고 넉넉한 위로를 누리시길 축복합니다.`,
+      `오늘 ${displayName}의 ${josa(f1, '과와')} ${f2} 속에 성실하게 애써온 피로가 살짝 비칩니다. ${josa(roleMsg, '을를')} 잘 감당하시느라 수고가 많으셨어요. 오늘은 무리하지 말고 주님 안에서 잠깐 숨을 고르며 편안히 쉬어가세요.`,
+      `스캔된 ${displayName}의 ${f2}에서 요즘 마음과 몸이 조금 지쳐 있음이 느껴집니다. ${josa(f1, '이가')} 주는 편안함처럼, 오늘만큼은 무거운 짐을 주님께 내려놓고 넉넉한 위로를 누리시길 축복합니다.`,
     ],
     joy: [
-      `오늘 ${displayName}의 ${f1}과 ${f2}에서 기분 좋은 밝은 에너지가 환하게 전해집니다! ${roleMsg} 가운데 넘치는 감사와 미소가 주변 사람들까지 행복하게 만드는 복된 하루가 될 것입니다.`,
-      `${displayName}의 ${f2}와 ${f1}이 오늘 유난히 밝고 생기 있어 보입니다. 하나님이 주신 이 즐거운 마음을 소중히 간직하며, 만나는 이들에게 따뜻한 응원을 나눠 보세요.`,
+      `오늘 ${displayName}의 ${josa(f1, '과와')} ${f2}에서 기분 좋은 밝은 에너지가 환하게 전해집니다! ${roleMsg} 가운데 넘치는 감사와 미소가 주변 사람들까지 행복하게 만드는 복된 하루가 될 것입니다.`,
+      `${displayName}의 ${josa(f2, '과와')} ${josa(f1, '이가')} 오늘 유난히 밝고 생기 있어 보입니다. 하나님이 주신 이 즐거운 마음을 소중히 간직하며, 만나는 이들에게 따뜻한 응원을 나눠 보세요.`,
     ],
     courage: [
-      `오늘 ${displayName}의 ${f1}과 ${f2}에서 어떤 일도 해낼 수 있을 것 같은 단단한 의지가 느껴집니다. ${roleMsg} 앞에서 망설이지 말고, 함께하시는 하나님을 믿으며 힘차게 한 걸음 내딛어 보세요.`,
-      `${displayName}의 ${f2} 속에 새로운 도전을 향한 맑은 결단이 보입니다. ${f1}이 주는 든든함처럼, 오늘 마주하는 일들마다 주님이 지혜와 용기를 넉넉히 채워주실 것입니다.`,
+      `오늘 ${displayName}의 ${josa(f1, '과와')} ${f2}에서 어떤 일도 해낼 수 있을 것 같은 단단한 의지가 느껴집니다. ${roleMsg} 앞에서 망설이지 말고, 함께하시는 하나님을 믿으며 힘차게 한 걸음 내딛어 보세요.`,
+      `${displayName}의 ${f2} 속에 새로운 도전을 향한 맑은 결단이 보입니다. ${josa(f1, '이가')} 주는 든든함처럼, 오늘 마주하는 일들마다 주님이 지혜와 용기를 넉넉히 채워주실 것입니다.`,
     ],
     wisdom: [
-      `오늘 ${displayName}의 ${f1}과 ${f2}에서 깊이 생각하고 바르게 판단하려는 진중한 분위기가 느껴집니다. ${roleMsg}에서 고민되는 선택이 있다면 혼자 애쓰지 말고 주님께 지혜를 구해 보세요.`,
-      `스캔된 ${displayName}의 ${f2}와 ${f1}은 차분하고 맑은 집중력을 보여줍니다. 오늘 서두르지 않고 한 번 더 생각하며 주님께 여쭐 때 가장 좋은 길이 열릴 것입니다.`,
+      `오늘 ${displayName}의 ${josa(f1, '과와')} ${f2}에서 깊이 생각하고 바르게 판단하려는 진중한 분위기가 느껴집니다. ${roleMsg}에서 고민되는 선택이 있다면 혼자 애쓰지 말고 주님께 지혜를 구해 보세요.`,
+      `스캔된 ${displayName}의 ${josa(f2, '과와')} ${josa(f1, '은는')} 차분하고 맑은 집중력을 보여줍니다. 오늘 서두르지 않고 한 번 더 생각하며 주님께 여쭐 때 가장 좋은 길이 열릴 것입니다.`,
     ],
     love: [
-      `오늘 ${displayName}의 ${f1}과 ${f2}에서 사람을 편안하게 해주는 따뜻한 온기가 느껴집니다. ${roleMsg} 속에서 건네는 다정한 말 한마디가 누군가에게 큰 힘이 되는 하루가 될 것입니다.`,
-      `${displayName}의 ${f2}와 ${f1}이 참 부드럽고 친근합니다. 오늘 주변의 가족이나 이웃에게 먼저 웃으며 안부를 건넬 때, 주님의 사랑이 자연스럽게 흘러갈 것입니다.`,
+      `오늘 ${displayName}의 ${josa(f1, '과와')} ${f2}에서 사람을 편안하게 해주는 따뜻한 온기가 느껴집니다. ${roleMsg} 속에서 건네는 다정한 말 한마디가 누군가에게 큰 힘이 되는 하루가 될 것입니다.`,
+      `${displayName}의 ${josa(f2, '과와')} ${josa(f1, '이가')} 참 부드럽고 친근합니다. 오늘 주변의 가족이나 이웃에게 먼저 웃으며 안부를 건넬 때, 주님의 사랑이 자연스럽게 흘러갈 것입니다.`,
     ],
     peace: [
-      `오늘 ${displayName}의 ${f1}과 ${f2}에서 흔들리지 않는 차분하고 안정된 평안이 느껴집니다. ${roleMsg} 가운데 바쁜 일이 생기더라도 이 고요한 중심을 잃지 않고 평온하게 하루를 보내세요.`,
-      `스캔된 ${displayName}의 ${f2}와 ${f1}은 편안하고 조화로운 상태를 보여줍니다. 오늘 마음에 잔잔히 흐르는 하나님의 평강을 누리면서 감사함으로 하루를 채워 보세요.`,
+      `오늘 ${displayName}의 ${josa(f1, '과와')} ${f2}에서 흔들리지 않는 차분하고 안정된 평안이 느껴집니다. ${roleMsg} 가운데 바쁜 일이 생기더라도 이 고요한 중심을 잃지 않고 평온하게 하루를 보내세요.`,
+      `스캔된 ${displayName}의 ${josa(f2, '과와')} ${josa(f1, '은는')} 편안하고 조화로운 상태를 보여줍니다. 오늘 마음에 잔잔히 흐르는 하나님의 평강을 누리면서 감사함으로 하루를 채워 보세요.`,
     ],
   };
 

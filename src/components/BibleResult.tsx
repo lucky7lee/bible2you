@@ -19,12 +19,21 @@ import {
   Briefcase,
   Heart,
   Moon,
+  Sun,
+  Sunrise,
+  Sunset,
+  Star,
+  Palette,
+  Anchor,
   Loader2,
+  Lock,
 } from 'lucide-react';
 import { BibleResultData, Language } from '../types/bible';
 import { triggerBlessingConfetti } from '../lib/confetti';
 import { EXPRESSION_LABELS, TITLE_LABELS, UI_TEXT } from '../lib/i18n';
 import { getBonusGraceData } from '../lib/bonusGrace';
+import { buildCreationProvidence } from '../lib/providenceEngine';
+import { josa } from '../lib/koreanJosa';
 
 interface BibleResultProps {
   lang: Language;
@@ -67,7 +76,20 @@ export const BibleResult: React.FC<BibleResultProps> = ({
   } = data;
 
   // 이전 저장 데이터 호환용 폴백 포함
-  const bonus = data.bonus || getBonusGraceData(metrics.dominantMood || 'peace', lang);
+  const fallbackName =
+    lang === 'es'
+      ? user.name?.trim() || TITLE_LABELS.es[user.title || '성도']
+      : lang === 'en'
+      ? user.name?.trim() || TITLE_LABELS.en[user.title || '성도']
+      : user.name?.trim()
+      ? `${user.name.trim()} ${TITLE_LABELS.ko[user.title || '성도']}님`
+      : `${TITLE_LABELS.ko[user.title || '성도']}님`;
+  const providence =
+    data.providence || buildCreationProvidence(user.birthDate, spiritualScore, lang, fallbackName);
+  const bonus =
+    data.bonus && data.bonus.timeRhythm
+      ? data.bonus
+      : getBonusGraceData(metrics.dominantMood || 'peace', lang, spiritualScore, providence);
 
   const [hasAmenClicked, setHasAmenClicked] = useState(initialAmenClicked);
   const [bonusUnlocked, setBonusUnlocked] = useState(initialBonusUnlocked);
@@ -252,7 +274,7 @@ ${prayer.body}
 
 - ${t.appName}: https://lucky7lee.github.io/bible2you/`
         : `[${t.appName}]
-${displayName}을 위한 오늘 하루의 말씀과 기도입니다.
+${josa(displayName, '을를')} 위한 오늘 하루의 말씀과 기도입니다.
 
 1. ${t.sec1Title}
 📖 ${verse.reference}
@@ -375,6 +397,61 @@ ${prayer.body}
       </nav>
 
       {/* =========================================================================
+          0-B. 오늘의 창조 기질 & 영적 기상도 (창조 섭리 · 하늘의 질서 · 묵상 컬러 · 영적 닻)
+          ========================================================================= */}
+      <section className="providence-card" aria-label={t.providenceHeader}>
+        <div className="providence-top-row">
+          <div className="providence-title-group">
+            <Sun size={15} color="#fbbf24" />
+            <h3 className="providence-heading">{t.providenceHeader}</h3>
+          </div>
+          <span className="temperament-chip">{providence.temperamentBadge}</span>
+        </div>
+
+        <div className="providence-weather-banner">
+          <span className="providence-sub-tag">{t.providenceHeartClimateLabel}</span>
+          <strong className="providence-weather-title">{providence.spiritualWeatherTitle}</strong>
+          <p className="providence-body-text">{providence.heartClimateSummary}</p>
+        </div>
+
+        <div className="providence-sky-box">
+          <div className="providence-mini-head">
+            <Star size={13} color="#93c5fd" />
+            <span>{t.providenceNightSkyLabel} · {providence.nightSkyTitle}</span>
+          </div>
+          <p className="providence-body-text">{providence.nightSkyMeditation}</p>
+        </div>
+
+        <div className="providence-duo-grid">
+          <div className="providence-mini-card">
+            <div className="providence-mini-head">
+              <Palette size={13} color={providence.graceColor.hex} />
+              <span>{t.providenceColorLabel}</span>
+            </div>
+            <div className="grace-color-row">
+              <span
+                className="grace-color-dot"
+                style={{ backgroundColor: providence.graceColor.hex }}
+                aria-hidden="true"
+              />
+              <strong className="grace-color-name">{providence.graceColor.name}</strong>
+              <span className="grace-color-meaning">({providence.graceColor.meaning})</span>
+            </div>
+            <p className="providence-mini-desc">{providence.graceColor.reminderText}</p>
+          </div>
+
+          <div className="providence-mini-card">
+            <div className="providence-mini-head">
+              <Anchor size={13} color="#34d399" />
+              <span>{t.providenceAnchorLabel}</span>
+            </div>
+            <strong className="grace-color-name">{providence.spiritualAnchorTitle}</strong>
+            <p className="providence-mini-desc">{providence.spiritualAnchorGuide}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
           1. 나에게 들려주는 오늘의 말씀 (골드 테두리 강조, 1.5배 큰 글씨)
           ========================================================================= */}
       <section id="sec-1" className="ordered-section-card verse-highlight-card">
@@ -384,6 +461,8 @@ ${prayer.body}
         </div>
 
         <div className="verse-card-body">
+          <p className="verse-connection-bridge">{providence.verseConnectionLine}</p>
+
           <div className="verse-meta-row">
             <span className="testament-pill">{verse.testament}</span>
             <span className="verse-reference-title">{verse.reference}</span>
@@ -581,10 +660,26 @@ ${prayer.body}
           <p className="reward-card-desc">{t.rewardCardDesc}</p>
 
           <div className="reward-preview-chips">
-            <span className="reward-preview-chip">7. {t.sec7Title}</span>
-            <span className="reward-preview-chip">8. {t.sec8Title}</span>
-            <span className="reward-preview-chip">9. {t.sec9Title}</span>
-            <span className="reward-preview-chip">10. {t.sec10Title}</span>
+            <span className="reward-preview-chip">
+              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
+              7. {t.sec7Title}
+            </span>
+            <span className="reward-preview-chip">
+              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
+              8. {t.sec8Title}
+            </span>
+            <span className="reward-preview-chip">
+              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
+              9. {t.sec9Title}
+            </span>
+            <span className="reward-preview-chip">
+              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
+              10. {t.sec10Title}
+            </span>
+            <span className="reward-preview-chip">
+              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
+              11. {t.sec11Title}
+            </span>
           </div>
 
           {rewardNotice && (
@@ -633,11 +728,56 @@ ${prayer.body}
             </div>
           </section>
 
-          {/* 8. 오늘의 인간관계 & 일터의 지혜 */}
+          {/* 8. 나의 창조 기질 심층 풀이 & 시간대별 영적 기상도 (오전·오후·저녁) */}
           <section id="sec-8" className="ordered-section-card bonus-section-card">
             <div className="section-header-bar">
               <div className="section-number-badge purple">8</div>
               <h3 className="section-title-text">{t.sec8Title}</h3>
+            </div>
+
+            <div className="section-card-content">
+              {bonus.temperamentDeepInsight && (
+                <div className="biblical-figure-box">
+                  <span className="bonus-sub-label">
+                    {t.temperamentDeepLabel} · {providence.temperamentBadge}
+                  </span>
+                  <p className="bonus-body-text">{bonus.temperamentDeepInsight}</p>
+                </div>
+              )}
+
+              {bonus.timeRhythm && (
+                <div className="time-rhythm-list">
+                  <div className="time-rhythm-item">
+                    <div className="time-rhythm-head">
+                      <Sunrise size={14} color="#fbbf24" />
+                      <strong>{t.timeMorningLabel}</strong>
+                    </div>
+                    <p className="bonus-body-text">{bonus.timeRhythm.morning}</p>
+                  </div>
+                  <div className="time-rhythm-item">
+                    <div className="time-rhythm-head">
+                      <Sun size={14} color="#60a5fa" />
+                      <strong>{t.timeAfternoonLabel}</strong>
+                    </div>
+                    <p className="bonus-body-text">{bonus.timeRhythm.afternoon}</p>
+                  </div>
+                  <div className="time-rhythm-item">
+                    <div className="time-rhythm-head">
+                      <Sunset size={14} color="#c084fc" />
+                      <strong>{t.timeEveningLabel}</strong>
+                    </div>
+                    <p className="bonus-body-text">{bonus.timeRhythm.evening}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* 9. 오늘의 이웃 사랑 가이드 & 일터·청지기 지혜 */}
+          <section id="sec-9" className="ordered-section-card bonus-section-card">
+            <div className="section-header-bar">
+              <div className="section-number-badge purple">9</div>
+              <h3 className="section-title-text">{t.sec9Title}</h3>
             </div>
 
             <div className="section-card-content">
@@ -659,11 +799,11 @@ ${prayer.body}
             </div>
           </section>
 
-          {/* 9. 오늘의 감사 노트 3가지 & 마음 다스림 */}
-          <section id="sec-9" className="ordered-section-card bonus-section-card">
+          {/* 10. 오늘의 감사 노트 3가지 & 마음 다스림 */}
+          <section id="sec-10" className="ordered-section-card bonus-section-card">
             <div className="section-header-bar">
-              <div className="section-number-badge purple">9</div>
-              <h3 className="section-title-text">{t.sec9Title}</h3>
+              <div className="section-number-badge purple">10</div>
+              <h3 className="section-title-text">{t.sec10Title}</h3>
             </div>
 
             <div className="section-card-content">
@@ -689,10 +829,10 @@ ${prayer.body}
             </div>
           </section>
 
-          {/* 10. 하루를 마감하는 저녁 축복 기도 */}
-          <section id="sec-10" className="ordered-section-card bonus-section-card evening-prayer-card">
+          {/* 11. 하루를 마감하는 저녁 축복 기도 */}
+          <section id="sec-11" className="ordered-section-card bonus-section-card evening-prayer-card">
             <div className="section-header-bar">
-              <div className="section-number-badge gold">10</div>
+              <div className="section-number-badge gold">11</div>
               <h3 className="section-title-text gold">{bonus.eveningPrayerTitle}</h3>
             </div>
 

@@ -8,6 +8,7 @@ import {
 import { getLifeStageInfo } from './bibleVerses';
 import { getBonusGraceData } from './bonusGrace';
 import { GENDER_LABELS, TITLE_LABELS } from './i18n';
+import { buildCreationProvidence } from './providenceEngine';
 import {
   buildPersonalizedDiagnosis,
   buildPersonalizedPrayer,
@@ -125,6 +126,9 @@ export function generateLocalBibleResult(
 
   const displayName = formatDisplayName(user, lang);
 
+  // 창조 섭리와 기질 묵상 (생년월일·계절·하늘의 질서 기반 기독교적 개인화)
+  const providence = buildCreationProvidence(user.birthDate, seed, lang, displayName);
+
   // 2. 얼굴 이목구비 + 표정 + 성별 + 직분 + 생애주기 맞춤 진단
   const faceSpiritualDiagnosis = buildPersonalizedDiagnosis(
     displayName,
@@ -188,7 +192,8 @@ export function generateLocalBibleResult(
       spiritualHabit: extras.habit,
       readingSuggestion: extras.reading,
     },
-    bonus: getBonusGraceData(mood, lang, seed + 53),
+    providence,
+    bonus: getBonusGraceData(mood, lang, seed + 53, providence),
     metrics,
     source: 'local-engine',
   };
@@ -341,6 +346,7 @@ Return pure JSON (no markdown fences) with these exact fields:
         spiritualHabit: parsed.spiritualHabit || localFallback.christianDaily.spiritualHabit,
         readingSuggestion: parsed.readingSuggestion || localFallback.christianDaily.readingSuggestion,
       },
+      providence: localFallback.providence,
       bonus: localFallback.bonus,
       metrics,
       source: 'gemini-api',

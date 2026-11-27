@@ -99,6 +99,36 @@ export interface RecommendedPraise {
   theme: string;
 }
 
+export type FiveElement = 'wood' | 'fire' | 'earth' | 'metal' | 'water';
+
+export type DailyRhythmType = 'support' | 'harmony' | 'express' | 'refine' | 'growth';
+
+export interface GraceColorInfo {
+  name: string;
+  hex: string;
+  meaning: string;
+  reminderText: string;
+}
+
+export interface CreationProvidenceData {
+  // 내부 계산 키 (화면에는 노출하지 않고 개인화 시드/해석에만 활용)
+  birthElement: FiveElement;
+  todayElement: FiveElement;
+  rhythmType: DailyRhythmType;
+  constellationIndex: number;
+
+  // 화면에 기독교적 프레임으로 노출되는 4대 창조 섭리 요소
+  spiritualWeatherTitle: string;     // 오늘의 영적 기상도 (예: '맑고 포근한 봄바람의 결')
+  temperamentBadge: string;          // 창조 기질 배지 (예: '생명과 성장의 결')
+  heartClimateSummary: string;       // ① 오늘의 마음 기후와 창조 기질 풀이
+  nightSkyTitle: string;             // ② 밤하늘의 시편 (계절의 별과 창조 묵상)
+  nightSkyMeditation: string;        // 성경 속 별과 하늘의 질서 묵상
+  graceColor: GraceColorInfo;        // ③ 오늘의 묵상 컬러 (Grace Color)
+  spiritualAnchorTitle: string;      // ④ 오늘의 영적 닻 (Spiritual Anchor)
+  spiritualAnchorGuide: string;      // 마음을 붙잡아 줄 작은 영적 습관/매개체
+  verseConnectionLine: string;       // "지금 당신의 마음에 ~하기 때문에 이 말씀을 드립니다" 연결 문장
+}
+
 export interface BonusGraceData {
   // 7. 연관 성경 구절 & 성경 인물 이야기
   companionVerseRef: string;
@@ -106,15 +136,23 @@ export interface BonusGraceData {
   biblicalFigureName: string;
   biblicalFigureStory: string;
 
-  // 8. 인간관계 & 일터(학업)의 지혜
+  // 8. 오늘의 창조 기질 심층 풀이 & 시간대별 영적 기상도 (오전/오후/저녁)
+  temperamentDeepInsight?: string;
+  timeRhythm?: {
+    morning: string;
+    afternoon: string;
+    evening: string;
+  };
+
+  // 9. 오늘의 이웃 사랑 가이드 & 일터·청지기 지혜
   relationshipWisdom: string;
   workWisdom: string;
 
-  // 9. 오늘의 감사 키워드 3가지 & 마음 다스림
+  // 10. 오늘의 감사 키워드 3가지 & 마음 다스림
   gratitudeSeeds: string[];
   peaceTip: string;
 
-  // 10. 하루를 마감하는 저녁 축복 기도문
+  // 11. 하루를 마감하는 저녁 축복 기도문
   eveningPrayerTitle: string;
   eveningPrayerBody: string;
   eveningBlessingLine: string;
@@ -159,6 +197,9 @@ export interface BibleResultData {
     spiritualHabit: string;
     readingSuggestion: string;
   };
+
+  // 창조 섭리와 기질 묵상 (생년월일·계절·하늘의 질서 기반 기독교적 개인화)
+  providence?: CreationProvidenceData;
 
   // 7~10. 보상형 광고 시청 후 열리는 심층 은혜 4가지
   bonus: BonusGraceData;

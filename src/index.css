@@ -1832,6 +1832,189 @@ html[lang='en'] .quick-nav-strip {
   gap: 6px;
 }
 
+/* =========================================================================
+   오늘의 창조 기질 & 영적 기상도 카드 (Creation Providence Card)
+   ========================================================================= */
+.providence-card {
+  background: linear-gradient(155deg, rgba(20, 32, 68, 0.94) 0%, rgba(12, 20, 44, 0.96) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.24);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.providence-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.providence-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.providence-heading {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+
+.temperament-chip {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+}
+
+.providence-weather-banner {
+  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid var(--gold-primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.providence-sub-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--gold-primary);
+  letter-spacing: 0.2px;
+}
+
+.providence-weather-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.providence-body-text {
+  font-size: 12.8px;
+  line-height: 1.62;
+  color: var(--text-secondary);
+}
+
+.providence-sky-box {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.providence-duo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 390px) {
+  .providence-duo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.providence-mini-card {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.providence-mini-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.grace-color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.grace-color-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+}
+
+.grace-color-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.grace-color-meaning {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.providence-mini-desc {
+  font-size: 11.8px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.verse-connection-bridge {
+  font-size: 12.2px;
+  line-height: 1.55;
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 8px 11px;
+  margin-bottom: 10px;
+}
+
+/* 시간대별 영적 기상도 (오전 / 오후 / 저녁) */
+.time-rhythm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-rhythm-item {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.time-rhythm-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #f8fafc;
+}
+
 /* 글로벌 푸터 */
 .global-footer {
   margin-top: 28px;

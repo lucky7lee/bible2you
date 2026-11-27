@@ -1,4 +1,5 @@
 import { BibleVerse, FaceMetrics } from '../types/bible';
+import { josa } from './koreanJosa';
 
 export interface LocalizedVerseContent {
   themeTitle: string;
@@ -76,7 +77,7 @@ export function expandCompactVerse(s: CompactVerseSeed): CatalogVerseEntry {
     mood: s.mood,
     ko: {
       themeTitle: s.koTheme,
-      themeSubtitle: `${s.koKeyword}이(가) 함께하는 오늘 하루`,
+      themeSubtitle: `${josa(s.koKeyword, '이가')} 함께하는 오늘 하루`,
       verse: {
         reference: s.koRef,
         testament: s.testament === 'OT' ? '구약' : '신약',
