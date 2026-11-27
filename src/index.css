@@ -1088,18 +1088,29 @@ html[lang='en'] .quick-nav-strip {
 
 .reward-preview-chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 6px;
 }
 
 .reward-preview-chip {
-  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.2px;
   font-weight: 600;
-  color: #e9d5ff;
-  background: rgba(139, 92, 246, 0.16);
+  color: #ede9fe;
+  background: rgba(139, 92, 246, 0.14);
   border: 1px solid rgba(192, 132, 252, 0.28);
-  padding: 4px 9px;
-  border-radius: var(--radius-full);
+  padding: 8px 11px;
+  border-radius: var(--radius-sm);
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.reward-lock-icon {
+  color: #fde68a;
+  flex-shrink: 0;
 }
 
 .reward-notice-text {
@@ -1114,14 +1125,17 @@ html[lang='en'] .quick-nav-strip {
 
 .reward-watch-btn {
   width: 100%;
-  height: 46px;
-  margin-top: 2px;
+  min-height: 48px;
+  padding: 10px 14px;
+  margin-top: 4px;
   border: none;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, #c084fc 0%, #7c3aed 55%, #d97706 100%);
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1221,6 +1235,10 @@ html[lang='en'] .quick-nav-strip {
   font-weight: 700;
   color: #ffffff;
   letter-spacing: -0.2px;
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .section-title-text.gold {
@@ -1833,17 +1851,18 @@ html[lang='en'] .quick-nav-strip {
 }
 
 /* =========================================================================
-   오늘의 창조 기질 & 영적 기상도 카드 (Creation Providence Card)
+   오늘의 영적 기상도 카드 (Spiritual Weather Card)
    ========================================================================= */
 .providence-card {
   background: linear-gradient(155deg, rgba(20, 32, 68, 0.94) 0%, rgba(12, 20, 44, 0.96) 100%);
-  border: 1px solid rgba(251, 191, 36, 0.24);
+  border: 1px solid rgba(251, 191, 36, 0.28);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 11px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  animation: fadeSlideUp 0.35s ease both;
 }
 
 .providence-top-row {
@@ -1852,18 +1871,24 @@ html[lang='en'] .quick-nav-strip {
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 10px;
 }
 
 .providence-title-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 9px;
+  min-width: 0;
 }
 
 .providence-heading {
-  font-size: 13.5px;
+  font-family: var(--font-serif);
+  font-size: 15.5px;
   font-weight: 700;
+  line-height: 1.35;
   color: var(--gold-light);
+  word-break: keep-all;
 }
 
 .temperament-chip {
@@ -1872,122 +1897,128 @@ html[lang='en'] .quick-nav-strip {
   color: #fde68a;
   background: rgba(251, 191, 36, 0.14);
   border: 1px solid rgba(251, 191, 36, 0.32);
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
+  white-space: nowrap;
 }
 
 .providence-weather-banner {
   background: rgba(255, 255, 255, 0.04);
   border-left: 3px solid var(--gold-primary);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  padding: 10px 12px;
+  padding: 11px 13px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .providence-sub-tag {
-  font-size: 10.5px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--gold-primary);
   letter-spacing: 0.2px;
 }
 
 .providence-weather-title {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   color: #ffffff;
+  line-height: 1.4;
+  word-break: keep-all;
 }
 
 .providence-body-text {
-  font-size: 12.8px;
-  line-height: 1.62;
+  font-size: 13px;
+  line-height: 1.65;
   color: var(--text-secondary);
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .providence-sky-box {
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(96, 165, 250, 0.22);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 11px 13px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .providence-duo-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-@media (max-width: 390px) {
-  .providence-duo-grid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: 1fr;
+  gap: 9px;
 }
 
 .providence-mini-card {
   background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--radius-sm);
-  padding: 10px;
+  padding: 11px 13px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .providence-mini-head {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #cbd5e1;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1.35;
+  word-break: keep-all;
 }
 
 .grace-color-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   flex-wrap: wrap;
 }
 
 .grace-color-dot {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.28);
 }
 
 .grace-color-name {
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #ffffff;
+  word-break: keep-all;
 }
 
 .grace-color-meaning {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-muted);
 }
 
 .providence-mini-desc {
-  font-size: 11.8px;
-  line-height: 1.55;
+  font-size: 12.6px;
+  line-height: 1.6;
   color: var(--text-secondary);
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .verse-connection-bridge {
-  font-size: 12.2px;
-  line-height: 1.55;
+  font-size: 12.6px;
+  line-height: 1.6;
   color: #fde68a;
   background: rgba(251, 191, 36, 0.08);
-  border: 1px solid rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.22);
   border-radius: var(--radius-sm);
-  padding: 8px 11px;
+  padding: 9px 12px;
   margin-bottom: 10px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* 시간대별 영적 기상도 (오전 / 오후 / 저녁) */
@@ -1998,21 +2029,22 @@ html[lang='en'] .quick-nav-strip {
 }
 
 .time-rhythm-item {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(10, 17, 40, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 11px 13px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .time-rhythm-head {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  color: #f8fafc;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fef08a;
 }
 
 /* 글로벌 푸터 */

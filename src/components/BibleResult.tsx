@@ -397,12 +397,14 @@ ${prayer.body}
       </nav>
 
       {/* =========================================================================
-          0-B. 오늘의 창조 기질 & 영적 기상도 (창조 섭리 · 하늘의 질서 · 묵상 컬러 · 영적 닻)
+          0-B. 오늘의 영적 기상도 (마음 날씨 · 창조 묵상 · 묵상 컬러 · 마음 쉼표)
           ========================================================================= */}
       <section className="providence-card" aria-label={t.providenceHeader}>
         <div className="providence-top-row">
           <div className="providence-title-group">
-            <Sun size={15} color="#fbbf24" />
+            <div className="section-number-badge gold" aria-hidden="true">
+              <Sun size={13} color="#0a1128" />
+            </div>
             <h3 className="providence-heading">{t.providenceHeader}</h3>
           </div>
           <span className="temperament-chip">{providence.temperamentBadge}</span>
@@ -660,26 +662,26 @@ ${prayer.body}
           <p className="reward-card-desc">{t.rewardCardDesc}</p>
 
           <div className="reward-preview-chips">
-            <span className="reward-preview-chip">
-              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
-              7. {t.sec7Title}
-            </span>
-            <span className="reward-preview-chip">
-              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
-              8. {t.sec8Title}
-            </span>
-            <span className="reward-preview-chip">
-              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
-              9. {t.sec9Title}
-            </span>
-            <span className="reward-preview-chip">
-              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
-              10. {t.sec10Title}
-            </span>
-            <span className="reward-preview-chip">
-              <Lock size={11} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />
-              11. {t.sec11Title}
-            </span>
+            <div className="reward-preview-chip">
+              <Lock size={13} className="reward-lock-icon" />
+              <span>7. {t.sec7Title}</span>
+            </div>
+            <div className="reward-preview-chip">
+              <Lock size={13} className="reward-lock-icon" />
+              <span>8. {t.sec8Title}</span>
+            </div>
+            <div className="reward-preview-chip">
+              <Lock size={13} className="reward-lock-icon" />
+              <span>9. {t.sec9Title}</span>
+            </div>
+            <div className="reward-preview-chip">
+              <Lock size={13} className="reward-lock-icon" />
+              <span>10. {t.sec10Title}</span>
+            </div>
+            <div className="reward-preview-chip">
+              <Lock size={13} className="reward-lock-icon" />
+              <span>11. {t.sec11Title}</span>
+            </div>
           </div>
 
           {rewardNotice && (

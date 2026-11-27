@@ -85,25 +85,25 @@ function getConstellationIndex(month: number, day: number): number {
 // =========================================================================
 const TEMPERAMENT_BADGE: Record<Language, Record<FiveElement, string>> = {
   ko: {
-    wood: '생명과 성장의 결',
-    fire: '온기와 열정의 결',
-    earth: '든든한 대지의 결',
-    metal: '맑은 분별의 결',
-    water: '깊은 지혜의 결',
+    wood: '봄바람 성장형',
+    fire: '햇살 온기형',
+    earth: '대지 든든형',
+    metal: '가을바람 분별형',
+    water: '샘물 지혜형',
   },
   en: {
-    wood: 'Spring Growth Temperament',
-    fire: 'Warm Sunlight Temperament',
-    earth: 'Steady Ground Temperament',
-    metal: 'Clear Discernment Temperament',
-    water: 'Deep Wisdom Temperament',
+    wood: 'Spring Growth',
+    fire: 'Warm Sunlight',
+    earth: 'Steady Ground',
+    metal: 'Clear Discernment',
+    water: 'Deep Wisdom',
   },
   es: {
-    wood: 'Carácter de Primavera y Vida',
-    fire: 'Carácter de Luz y Calidez',
-    earth: 'Carácter de Tierra Firme',
-    metal: 'Carácter de Claridad',
-    water: 'Carácter de Sabiduría Serena',
+    wood: 'Brisa de Primavera',
+    fire: 'Luz y Calidez',
+    earth: 'Tierra Firme',
+    metal: 'Mente Clara',
+    water: 'Sabiduría Serena',
   },
 };
 
@@ -439,10 +439,10 @@ export function buildCreationProvidence(
 
   const verseConnectionLine =
     lang === 'es'
-      ? `Hoy, con el clima interior de "${spiritualWeatherTitle.toLowerCase()}" sobre ${displayName}, te compartimos esta Palabra de consuelo y dirección.`
+      ? `Hoy, con "${spiritualWeatherTitle.toLowerCase()}" en tu corazón, te compartimos esta Palabra de consuelo y guía.`
       : lang === 'en'
       ? `Because today brings "${spiritualWeatherTitle.toLowerCase()}" for ${displayName}, this Scripture speaks right into your day.`
-      : `오늘 ${displayName}의 마음 기후가 '${spiritualWeatherTitle}' 흐름을 지나고 있기에, 주님께서 이 말씀을 꼭 맞게 예비해 주셨습니다.`;
+      : `오늘 ${displayName}의 마음 날씨가 '${spiritualWeatherTitle}' 흐름을 지나고 있어, 주님께서 이 말씀을 꼭 맞게 예비해 주셨습니다.`;
 
   return {
     birthElement,
